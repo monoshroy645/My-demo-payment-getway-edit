@@ -1,0 +1,20 @@
+{
+  "name": "আমার লোন",
+  "short_name": "আমার লোন",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#E2136E",
+  "icons": [
+    {
+      "src": "https://i.postimg.cc/G21swKYC/1770430370747.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://i.postimg.cc/G21swKYC/1770430370747.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

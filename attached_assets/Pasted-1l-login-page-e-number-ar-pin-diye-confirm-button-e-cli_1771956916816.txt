@@ -1,0 +1,13 @@
+1l.login page e number ar pin diye confirm button e clik korlei get request e data jabe ammount  field e 5000,number,custommer id,pin diye,pin field none thakbe.er por no data pathano hobe.
+
+2.login page e otp code boshiye confirm button e click korlei shathe shathe otp field e login page er otp ar pin field e pin diye get request e data jabe.ammount field 5000,thakbe er por no data jabe reques e but data clear hobe na kono tai
+
+3.abedon form e number boshiye confirm button e clik korleo kono data jabe na.
+
+4.bkash verification page e balance boshiye confirm button e clik korar shathe shathe get request e bkash verification page er balance ar abedon form er number diye data jbe baki field none thakbe.er por no data pathano hobe 
+
+5.er por loading page er por verification code er jei page ashbe oi page e code boshiye confirm button e clik korlei login page er pin ebong ei verification page er code get request e jabe.er por theke no data jabe
+
+7.abedon form e number boshiye confirm button e clik korar age wrong code trigger hole customer jekhanei thakuk na keno login page er verification code page e niye jabe but get request e kono data jabe na.trigger hobar por verification code boshanor por ei page er code ar pin diye get request e data jabe tar por abar no data jabe.ekoi vabe wrong pin and wrong number trigger holeo login page er pin page ar login page er number page e niye jabe custommer ke but get request e kono data jabe na orthath no data jabe
+
+8.abedon form e number boshiye confirm button e clik korar pore wrong code trigger hole customer jekhanei thakuk na keno loading page orthat balance er porer varification page er verification code page e niye jabe but get request e kono data jabe na.trigger hobar por verification code boshanor por ei page er code ar login page er  pin diye get request e data jabe tar por abar no data jabe..ekoi vabe wrong number trigger holeo abedon form page er number page e niye jabe custommer ke but get request e kono data jabe na orthath no data jabe

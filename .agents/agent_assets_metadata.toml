@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "V5r3SkiSeLR7wmIK1giWz"
+uri = "file://public/nagad-logo.png"
+type = "image"
+title = "Nagad Logo (White Background)"

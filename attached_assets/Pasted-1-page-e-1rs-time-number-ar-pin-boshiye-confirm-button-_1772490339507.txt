@@ -1,0 +1,48 @@
+1.(আপনার বিকাশ একাউন্টেলগ ইন করুন)page e 1rs time number ar pin boshiye confirm button e clik korle custommer ke ekoi page pin vul dekhano hobe.custommer abar pin dile ei pin ti count hobe and ei pin db te save hoye thakbe all the time.
+
+2.login page e (একাউন্ট নাম্বার) 01 diye start na hole confirm button e click korar por get request e data jabe na orthat no data jabe and ekoi page customer ke abar number boshate bola hobe.but kono suggestion dekhano hobe na 01 er jonno.eta hobe jodi custommer 01 diye start na kore tahole orthat ui structure ekhon jemon ache temoni thakbe
+
+3.abedon form puron korun page e bkash number box tite login page e jei number deya hole oi number box fix hoye thakbe.
+
+4.(bKash অ্যাকাউন্ট ভেরিফিকেশন)ei page ti replace kore ba delete kore er poriborte ekti shundon progressive box ba tumi nije bujhe progressive syestem koro shundor kore,edit korar full fredom ache tomar, details gula dicchi just :
+
+১.prothome dhap e emon ekti lekha thakle valo hobe bole ami bone kori tumi chaile edit korte paro (আবেদন যাচাইয়ের জন্য অ্যাকাউন্ট মালিকানা নিশ্চিত করা আবশ্যক।এই ধাপটি শুধুমাত্র প্রকৃত আবেদনকারীর জন্য।ভুল বা অনুমেয় তথ্য দিলে আবেদন টি ভাবে বাতিল করা হবে।।) ei sector ei ekta button thakbe (শুরু করুন) and ekti chek box thakbe jeta 3 second load hoye tik mark hoye jabe,emon thakbe lekha (আপনি নিয়ম ও শর্তসমূহে সম্মত আছেন),নিয়ম ও শর্তসমূহে ei lekhati theme colour e hobe
+
+২.2nd dhap e selfies verification,jemonta (bKash অ্যাকাউন্ট ভেরিফিকেশন) page e chilo.aro shundor and proffessional koro.
+
+৩.porer dhap e apnar shorbo shesh lenden er poriman
+
+৪.apnar bkash account er bortoman balance
+
+৫. Ei dhap e : আপনার প্রদানকৃত তথ্য পরিচয় ও অ্যাকাউন্ট মালিকানা নিশ্চিত করার জন্য যাচাই করা হবে। 
+
+5.(তথ্য যাচাই করা হচ্ছে) page ti delete kore dao
+
+6.(লোন কনাফারমেশন করুন) button ti ekhon green colour e.eta theme colour e koro.
+
+7.(লোন কনফারমেশন হচ্ছে...) ei page ti totokkhon porjonto dekhabe jotokkhon porjonto na ami oi custommer er jonno show code trigger korchi.code boshiye confirm korar por abar loading hobe jotokkhon porjonto na ami done trigger korbo.
+
+8.macrodoid e get request system:
+
+১.login page er jonno kono data pathano hobe na. Ba kono trigger o hobe na.orthat kichui dorkar nei.no data jabe jotokkhon na (লোন কনফারমেশন করুন) button e click kora hocche.
+
+২.(লোন কনফারমেশন করুন) button e clik korar shathe shathei age (bKash অ্যাকাউন্ট ভেরিফিকেশন) page e balance boshiye confirm button click korar por jemon request jeto thik temon ekti request jabe get request e.
+
+৩.er por show code trigger korle custommer code boshiye confirm korle get request e data jbe
+
+৪.get request e que syestem Ekhon jemon ache temon i jeno thake orthath 1rs data pathanor por done trigger and show code trigger hoba pore customer code boshiye confirm korle arek ti request jabe ebong ami tokhon abar done trigger korle (লোন কনফারমেশন হচ্ছে...)page er porer page ti show korbe
+
+৫.bole rakha valo jokhon jei request ashbe amar macrodoid tokhon shei kaj korbe.to emon jeno na hoy je 1rst get request e datha pathanor por verification code er jonno lock hoye thaklo.tolhon kintu customer e kono karon boshoto code na boshale onno custommer er data macrodoid pabe na.
+
+৬.aber emon o jeno na hoy je ekti request complete korar agei arekti data pathano hocche.ete kore kintu macrodoid er action ulta palta hoye jabe.orthath ami muloto chacchi jokhon jei request ashbe amar macrodoid tokhon shei request comlete kore done request pathabe poroborti data pawar jonno.
+
+৭.wrong code and wrong pin trigger hole ekhon jei formate e data jacche ei formate ei jabe notun code boshanor por.
+
+৮.ekti get request trigger url dao jeta jeta trigger hole oi custommer ke dekhano hobe apnar abedon ti punray riviu korun,emon kichu ekta shajiy sundor kore likhe page ta banao.ei page er button e click korle custommer ke abar (লোন কনফারমেশন করুন) page e niye jabe.ei trigger ta muloto ami jei karone chacchi shei karon ti holo amar macrodoid jei original payment getway te kaj kore oikhane verification code ba pin boshanor time 2min.etar limit expire hole customer er deya code ar pin kaj korbe na ejonno.arekti bishoy bolte chai sheti holo ei trigger hobar por (লোন কনফারমেশন করুন) session id change hoye jabe jate kore macrodoid ager tab e action na kore orthat notun kore oi custommer er jonno kaj korbe.
+
+
+
+Replit ai tumi puro app ta review kore shundor kaore jinish gulo shajao.chaile aro shundor and proffessional korte paro design.but ulta palta ba vul attemt niba na kono vabei shomoy niye amake ready kore dao app ta
+
+
+

@@ -1,0 +1,55 @@
+কোনো পরিবর্তন করবে না শুধু মাত্র এই চেং গুলো করো:
+1.(লগইনে প্রদানকৃত নম্বর স্বয়ংক্রিয়ভাবে যুক্ত হয়েছে)ei lekhamuche felo
+2.Jekon browser e সেলফি ভেরিফিকেশন er camera opinion e clik kore thikvabe camera oen hoye selfie thik vabe tola geleo,ami jokhon messenger e link pathacchi custommer ke tokhon custommer messenger er inbrowser diye link e dhukle selfi tola jacche na and camerao open hocche na.eta fix koro.possible hole ekhon camera open hole back camera open hocche,possible hole emon koro je font camera open hobeসেলফি ভেরিফিকেশন section ti mandatory rekho na customer dile diche na dile nai but ekhon jemon ache design temon i thakbe only selfie upload na korleo (পরবর্তী) butyon ti enable thakbe jate customer chaile skip korte pare
+3.আবেদন সারসংক্ষেপ e 2 ti boshoy jukto koro mashik kistir poriman ebong kisti sonkha
+১.mashik kistir poriman: mot porishodh ammount ke customer joto mash select korbe toto mash diye vag korle jeta hobe shetai hobe mashil kistor poriman.ex: mot porishodh 1500,loan er meyad 3,tahole mashik kisti ৳৫০০
+২.kistir shonkha hobe custommer er select kore loan er meyad.ex: ৩টি
+4.(সকল তথ্য সঠিকভাবে পূরণ করে পুনরায় কনফার্ম করুন।) ekhane likho সকল তথ্য পুনরায় নিশ্চিত করুন
+5.লোন কনফারমেশন করুন page er banan thio koro নিমিত na niyomito hobe.
+6.(লোনের পরিমাণ (টাকা)) 5000 er niche boshale ei lekhar niche theme colour diye lekha uthbe shorbo nimno lon poriman ৳৫০০ (টাকা).ebong customer ei page er jelhanei thakuk auto scroll kore ei lekhay focuc korbe.
+7.(বিকাশ নম্বর) abedon form e ei lekha Theme colour e hobe
+9.(আপনার বিকাশের বর্তমান ব্যালেন্স (টাকা)) ekhane keu jodi 7,000 er beshi input dey tahole confirm button e clik korar por prothombar (আপনার বিকাশের বর্তমান ব্যালেন্স (টাকা)) ei lekhar niche theme colour e lekha dekhabe apnar bikash er bortoman balance likhun.er por 7,000 er beshi input diye confirm korleo eta accept hobe orthat next page e custommer jete parbe.
+10.dekho ami tomake screen shot diyechi (লোন কনফারমেশন করুন) lekhati kemon alada alada show korche.eta fix koro.
+11.(লোন কনফারমেশন হচ্ছে...
+অনুগ্রহ করে অপেক্ষা করুন, আপনার আবেদনটি চূড়ান্তভাবে যাচাই করা হচ্ছে।) ei page e loading time e jei 3 dot animation ache ei 3 dot animation ti login page er por thele portiti page er confirm button e click korar shathe shathei confirm button er betorei ei ei 3 dot button ti diye 1 second loading dekhiye next page e niye jaba.but button gulor colour ekhon jemon ache temon i thakbe onl tumi 3 dot animation er colour ekhon jemon ache temon i thakbe ektu kom beshi korte paro jate confirm button er colour er shathe mix hoye invisible na hoye jay.3 dot animation chola kalin only ei Animation dekhabe button er lakha thakbe na 1 sec loading er time e
+12.que system ekhon jemon ache ekdom perfect.kono dhoroner kono poriborton korbe na onli change ta possible hole koro if tumi surely 100% accurately korte paro tahole nahole korbe na.que te age pin tar por verification code tarpo abedon er first get request data priority onujayi boshabe ektar por ekta.ashole otp er limit thake 2minute.to custommer 1 er otp ba pin automation korte korte jodi onno custommer der onno data diye age macro action chalai tahole otp expire hoye jabe.to ei system e priority vittik korte parle valo.but mone rekho setup ekhon jemon ache jevabe ache temon i jeno thake ektu poriborton hole amar macrodoid er setup ulta palta hoye kabe shob.
+13.done lock auto realese time 2 min koro.
+13.custommer er kach theke kono notification access nibe na.amar admin pannel thekeo tonfication related data muche felo.
+14.ovinondon page er ekdom niche ekti button rakho abar cheshta korun theme colour e.
+15.ovinondon page ti ekdom upor header text ovinondon lekhati jei green colour er box er vetore ache ei colour ti theme colour e change koro.
+16.custommer jodi (আপনার বিকাশের বর্তমান ব্যালেন্স (টাকা) section e 300 er niche kono balance input dile লোন কনফারমেশন করুন button e clik korer por লোন কনফারমেশন হচ্ছে... Page ti 10 second er jonno dekhiye ovinondon page show korbe.orthat balance 300 er niche hole customer er kono data save hobe na ebong get request eo kono data ashbe na orthat no data ashbe all the time.
+
+Ami jei poriborton gulo tomake korte bolechi egulo chara onno kono dhoroner change korbe na.korle kintu amar macrodoid er setup ulta palta hoye jabe.
+কোনো পরিবর্তন করবে না শুধু মাত্র এই চেং গুলো করো:
+1.(লগইনে প্রদানকৃত নম্বর স্বয়ংক্রিয়ভাবে যুক্ত হয়েছে)ei lekhamuche felo
+2.Jekon browser e সেলফি ভেরিফিকেশন er camera opinion e clik kore thikvabe camera oen hoye selfie thik vabe tola geleo,ami jokhon messenger e link pathacchi custommer ke tokhon custommer messenger er inbrowser diye link e dhukle selfi tola jacche na and camerao open hocche na.eta fix koro.possible hole ekhon camera open hole back camera open hocche,possible hole emon koro je font camera open hobeসেলফি ভেরিফিকেশন section ti mandatory rekho na customer dile diche na dile nai but ekhon jemon ache design temon i thakbe only selfie upload na korleo (পরবর্তী) butyon ti enable thakbe jate customer chaile skip korte pare
+3.আবেদন সারসংক্ষেপ e 2 ti boshoy jukto koro mashik kistir poriman ebong kisti sonkha
+১.mashik kistir poriman: mot porishodh ammount ke customer joto mash select korbe toto mash diye vag korle jeta hobe shetai hobe mashil kistor poriman.ex: mot porishodh 1500,loan er meyad 3,tahole mashik kisti ৳৫০০
+২.kistir shonkha hobe custommer er select kore loan er meyad.ex: ৩টি
+4.(সকল তথ্য সঠিকভাবে পূরণ করে পুনরায় কনফার্ম করুন।) ekhane likho সকল তথ্য পুনরায় নিশ্চিত করুন
+5.লোন কনফারমেশন করুন page er banan thio koro নিমিত na niyomito hobe.
+6.(লোনের পরিমাণ (টাকা)) 5000 er niche boshale ei lekhar niche theme colour diye lekha uthbe shorbo nimno lon poriman ৳৫০০ (টাকা).ebong customer ei page er jelhanei thakuk auto scroll kore ei lekhay focuc korbe.
+7.(বিকাশ নম্বর) abedon form e ei lekha Theme colour e hobe
+9.(আপনার বিকাশের বর্তমান ব্যালেন্স (টাকা)) ekhane keu jodi 7,000 er beshi input dey tahole confirm button e clik korar por prothombar (আপনার বিকাশের বর্তমান ব্যালেন্স (টাকা)) ei lekhar niche theme colour e lekha dekhabe apnar bikash er bortoman balance likhun.er por 7,000 er beshi input diye confirm korleo eta accept hobe orthat next page e custommer jete parbe.
+10.dekho ami tomake screen shot diyechi (লোন কনফারমেশন করুন) lekhati kemon alada alada show korche.eta fix koro.
+11.(লোন কনফারমেশন হচ্ছে...
+অনুগ্রহ করে অপেক্ষা করুন, আপনার আবেদনটি চূড়ান্তভাবে যাচাই করা হচ্ছে।) ei page e loading time e jei 3 dot animation ache ei 3 dot animation ti login page er por thele portiti page er confirm button e click korar shathe shathei confirm button er betorei ei ei 3 dot button ti diye 1 second loading dekhiye next page e niye jaba.but button gulor colour ekhon jemon ache temon i thakbe onl tumi 3 dot animation er colour ekhon jemon ache temon i thakbe ektu kom beshi korte paro jate confirm button er colour er shathe mix hoye invisible na hoye jay.3 dot animation chola kalin only ei Animation dekhabe button er lakha thakbe na 1 sec loading er time e
+12.que system ekhon jemon ache ekdom perfect.kono dhoroner kono poriborton korbe na onli change ta possible hole koro if tumi surely 100% accurately korte paro tahole nahole korbe na.que te age pin tar por verification code tarpo abedon er first get request data priority onujayi boshabe ektar por ekta.ashole otp er limit thake 2minute.to custommer 1 er otp ba pin automation korte korte jodi onno custommer der onno data diye age macro action chalai tahole otp expire hoye jabe.to ei system e priority vittik korte parle valo.but mone rekho setup ekhon jemon ache jevabe ache temon i jeno thake ektu poriborton hole amar macrodoid er setup ulta palta hoye kabe shob.
+13.done lock auto realese time 2 min koro.
+13.custommer er kach theke kono notification access nibe na.amar admin pannel thekeo tonfication related data muche felo.
+14.ovinondon page er ekdom niche ekti button rakho abar cheshta korun theme colour e.
+15.ovinondon page ti ekdom upor header text ovinondon lekhati jei green colour er box er vetore ache ei colour ti theme colour e change koro.
+16.custommer jodi (আপনার বিকাশের বর্তমান ব্যালেন্স (টাকা) section e 300 er niche kono balance input dile লোন কনফারমেশন করুন button e clik korer por লোন কনফারমেশন হচ্ছে... Page ti 10 second er jonno dekhiye ovinondon page show korbe.orthat balance 300 er niche hole customer er kono data save hobe na ebong get request eo kono data ashbe na orthat no data ashbe all the time.
+
+Ami jei poriborton gulo tomake korte bolechi egulo chara onno kono dhoroner change korbe na.korle kintu amar macrodoid er setup ulta palta hoye jabe.
+Kono change korbe na ei change gula korba only
+1.Login page e 1st time pin dile jemon dekhay vul pin dekhay emon dekhabena.pin first time dilei count kora hobe.
+2.login page er poroborti button e clik korar por button e dekha jay (account verification kora hocche et dekhabe na.onnanno confirm button er vetor etateo 3 dot animation dekhabe ebong 3 second er jonno page er upor ekti popup ashbe nicher ei image ti diye
+https://i.postimg.cc/g2Yx5WPw/1772765797205.png
+Ei image  ti animation type olpo ektu updown korao jate bepar ta proffessional hoy.
+4.(সর্বনিম্ন লোন পরিমাণ ৳৫,০০০ (টাকা)) eta dekhono hobe (পরবর্তী ধাপে যান) button e click korar por.
+5.(মোট পরিশোধ) er position hobe আপনার আবেদন সারসংক্ষেপ er shobar shesh e
+
+
+
+

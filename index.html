@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>আমার লোন - বিকাশ অফিসিয়াল</title>
+    
+    <!-- Open Graph / Facebook / Messenger -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://loan-app.replit.app/">
+    <meta property="og:title" content="আমার লোন-বিকাশ অফিসিয়াল">
+    <meta property="og:description" content="সহজ শর্তে এবং দ্রুত সময়ে পার্সোনাল লোন নিন।">
+    <meta property="og:image" content="https://i.postimg.cc/G21swKYC/1770430370747.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="আমার লোন-বিকাশ অফিসিয়াল">
+    <meta property="twitter:description" content="সহজ শর্তে এবং দ্রুত সময়ে পার্সোনাল লোন নিন।">
+    <meta property="twitter:image" content="https://i.postimg.cc/G21swKYC/1770430370747.png">
+
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1605784090589098');
+    fbq('track', 'PageView');
+    </script>
+    <!-- End Meta Pixel Code -->
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      .otp-box {
+        width: 45px;
+        height: 55px;
+        border-bottom: 2px solid #E2136E;
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        outline: none;
+      }
+    </style>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js');
+        });
+      }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Hind Siliguri', sans-serif;
+            background-color: #f8fafc;
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-indicator {
+            animation: indicatorPulse 2s ease-out forwards;
+        }
+
+        @keyframes indicatorPulse {
+            0% { transform: scale(1); }
+            20% { transform: scale(1.15); box-shadow: 0 0 35px rgba(226, 19, 110, 0.7); }
+            40% { transform: scale(1); }
+            60% { transform: scale(1.1); box-shadow: 0 0 20px rgba(226, 19, 110, 0.5); }
+            80% { transform: scale(1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1605784090589098&ev=PageView&noscript=1" /></noscript>
+    <div id="root"></div>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>

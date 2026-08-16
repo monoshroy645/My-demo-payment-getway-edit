@@ -1,0 +1,8 @@
+{
+  "name": "আমার লোন - সহজ ব্যক্তিগত ঋণ সমাধান",
+  "description": "একটি আধুনিক এবং বিশ্বস্ত ব্যক্তিগত লোন অ্যাপ্লিকেশন প্ল্যাটফর্ম যেখানে আপনি সহজ শর্তে এবং দ্রুত সময়ে ঋণ পেতে পারেন।",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

