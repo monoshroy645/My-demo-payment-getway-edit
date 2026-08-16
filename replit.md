@@ -5,8 +5,8 @@ A loan application platform (Nagad/bKash-style) built with React + Express + Fir
 ## Stack
 
 - **Frontend**: React 19 + TypeScript + Vite (port 5000)
-- **Backend**: Express 5 (port 3000) — API + Firestore sync
-- **Database**: Firebase Firestore (config in `firebase-applet-config.json`)
+- **Backend**: Express 5 (port 3000) — API + PostgreSQL sync
+- **Database**: Replit PostgreSQL (tables: `sessions`, `blocked_ips`, `settings`)
 - **Styling**: Tailwind CSS (CDN), Lucide React icons, Motion animations
 
 ## How to run
