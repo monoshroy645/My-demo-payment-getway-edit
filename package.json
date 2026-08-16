@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node server.cjs",
+    "dev": "node server.cjs & npx vite",
     "build": "vite build",
     "preview": "vite preview",
     "test": "node --test tests/sweeper.test.cjs",
