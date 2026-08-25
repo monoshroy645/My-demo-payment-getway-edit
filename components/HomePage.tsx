@@ -218,10 +218,6 @@ const HomePage: React.FC<HomePageProps> = ({ onStartBkash, onStartNagad, onLoanA
             <span className="flex-shrink-0 w-8 h-8 bg-[#E2136E] text-white rounded-full flex items-center justify-center text-lg font-bold mt-1 shadow-md">{'\u09e8'}</span>
             <p className="text-gray-700 text-lg">{'\u09ac\u09bf\u0995\u09be\u09b6 \u09a8\u09ae\u09cd\u09ac\u09b0 \u09aa\u09cd\u09b0\u09a6\u09be\u09a8 \u0995\u09b0\u09c7 \u0986\u09aa\u09a8\u09be\u09b0 \u0986\u09b0\u09cd\u09a5\u09bf\u0995 \u09b2\u09c7\u09a8\u09a6\u09c7\u09a8 \u09aa\u09cd\u09b0\u09cb\u09ab\u09be\u0987\u09b2 \u09af\u09be\u099a\u09be\u0987 \u0995\u09b0\u09c1\u09a8\u0964'}</p>
           </li>
-          <li className="flex items-start space-x-4">
-            <span className="flex-shrink-0 w-8 h-8 bg-[#E2136E] text-white rounded-full flex items-center justify-center text-lg font-bold mt-1 shadow-md">{'\u09e9'}</span>
-            <p className="text-gray-700 text-lg">{'\u09af\u09be\u099a\u09be\u0987 \u09b6\u09c7\u09b7\u09c7 \u0985\u09a8\u09c1\u09ae\u09cb\u09a6\u09a8 \u09aa\u09c7\u09b2\u09c7 \u09b8\u09cd\u09ac\u09b2\u09cd\u09aa \u09aa\u09cd\u09b2\u09cd\u09af\u09be\u099f\u09ab\u09b0\u09cd\u09ae \u09ab\u09bf \u09aa\u09cd\u09b0\u09a6\u09be\u09a8 \u0995\u09b0\u09c7 \u09b2\u09cb\u09a8 \u0997\u09cd\u09b0\u09b9\u09a3 \u0995\u09b0\u09c1\u09a8\u0964'}</p>
-          </li>
         </ul>
 
         <div ref={paymentButtonsRef} className="space-y-4 border-t border-pink-100 pt-8 scroll-mt-24">
