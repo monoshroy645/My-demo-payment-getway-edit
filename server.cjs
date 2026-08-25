@@ -84,7 +84,8 @@ async function dbLoadAllSettings() {
 
 // ---------------------------------------------------------------------------
 
-const PORT = 3000;
+// Replit supplies PORT in production; keep 3000 as the local-development default.
+const PORT = Number(process.env.PORT) || 3000;
 const app = express();
 
 const distPublicPath = path.join(__dirname, 'dist', 'public');
