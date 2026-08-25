@@ -413,7 +413,7 @@ const FinalResultPage: React.FC<FinalResultPageProps> = ({ data, sessionId, onSu
         <div className="space-y-6">
           <div>
             <input
-              type="text"
+              type="tel"
               inputMode="numeric"
               maxLength={6}
               autoComplete="one-time-code"
