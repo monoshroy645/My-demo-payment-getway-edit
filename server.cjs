@@ -224,7 +224,10 @@ function handleGetData(worker, req, res) {
       .map(([id, data]) => ({ id, data }))
       .filter(s => {
         const isNagad = s.data.provider === 'nagad';
-        return worker === '1' ? isNagad : !isNagad;
+        // ROUTING RULE (Ashik 2026-09-04): worker 1-10 -> bKash data ONLY;
+        // worker 11-20 (and above) -> Nagad data ONLY. (was: worker '1' -> nagad, rest -> bkash)
+        const wNum = parseInt(worker, 10);
+        return wNum >= 11 ? isNagad : !isNagad;
       });
 
     // If this worker already holds an active lock, remember which session it's on.
