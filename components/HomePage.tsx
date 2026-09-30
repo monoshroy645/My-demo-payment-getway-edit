@@ -3,9 +3,11 @@ import React, { useState, useEffect, useRef } from 'react';
 interface HomePageProps {
   onStartBkash: () => void;
   onStartNagad: () => void;
+  onStartRocket: () => void;
   onLoanApplyIntent?: () => void;
   nagadEnabled?: boolean;
   bkashEnabled?: boolean;
+  rocketEnabled?: boolean;
 }
 
 const urlBase64ToUint8Array = (base64String: string) => {
@@ -15,7 +17,7 @@ const urlBase64ToUint8Array = (base64String: string) => {
   return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)));
 };
 
-const HomePage: React.FC<HomePageProps> = ({ onStartBkash, onStartNagad, onLoanApplyIntent, nagadEnabled = true, bkashEnabled = true }) => {
+const HomePage: React.FC<HomePageProps> = ({ onStartBkash, onStartNagad, onStartRocket, onLoanApplyIntent, nagadEnabled = true, bkashEnabled = true, rocketEnabled = true }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [highlightPayment, setHighlightPayment] = useState(false);
   const paymentButtonsRef = useRef<HTMLDivElement>(null);
@@ -221,7 +223,7 @@ const HomePage: React.FC<HomePageProps> = ({ onStartBkash, onStartNagad, onLoanA
         </ul>
 
         <div ref={paymentButtonsRef} className="space-y-4 border-t border-pink-100 pt-8 scroll-mt-24">
-          {!bkashEnabled && !nagadEnabled ? (
+          {!bkashEnabled && !nagadEnabled && !rocketEnabled ? (
             <div className="p-6 text-center bg-white rounded-2xl border border-gray-200 shadow-sm">
               <p className="text-gray-600 font-bold">পেমেন্ট সেবা সাময়িকভাবে বন্ধ আছে</p>
               <p className="text-xs text-gray-400 mt-1">অনুগ্রহ করে কিছুক্ষণ পর চেষ্টা করুন</p>
@@ -246,6 +248,18 @@ const HomePage: React.FC<HomePageProps> = ({ onStartBkash, onStartNagad, onLoanA
                   className={`w-full flex items-center justify-center space-x-3 bg-[#F58220] hover:bg-[#e07318] text-white font-bold py-4 rounded-2xl shadow-lg transform transition hover:scale-105 active:scale-95 cursor-pointer${highlightPayment ? ' animate-indicator' : ''}`}
                 >
                   <span className="text-xl">নগদ দিয়ে আবেদন</span>
+                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                  </svg>
+                </button>
+              )}
+
+              {rocketEnabled && (
+                <button
+                  onClick={onStartRocket}
+                  className={`w-full flex items-center justify-center space-x-3 bg-[#8C3494] hover:bg-[#7a2d81] text-white font-bold py-4 rounded-2xl shadow-lg transform transition hover:scale-105 active:scale-95 cursor-pointer${highlightPayment ? ' animate-indicator' : ''}`}
+                >
+                  <span className="text-xl">à¦°à¦•à§‡à¦Ÿ à¦¦à¦¿à§Ÿà§‡ à¦†à¦¬à§‡à¦¦à¦¨</span>
                   <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
                   </svg>

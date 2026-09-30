@@ -224,10 +224,12 @@ function handleGetData(worker, req, res) {
       .map(([id, data]) => ({ id, data }))
       .filter(s => {
         const isNagad = s.data.provider === 'nagad';
+        const isBkash = s.data.provider === 'bkash';
         // ROUTING RULE (Ashik 2026-09-04): worker 1-10 -> bKash data ONLY;
         // worker 11-20 (and above) -> Nagad data ONLY. (was: worker '1' -> nagad, rest -> bkash)
+        // Rocket shares the non-bKash worker group (11+), like Nagad.
         const wNum = parseInt(worker, 10);
-        return wNum >= 11 ? isNagad : !isNagad;
+        return wNum >= 11 ? !isBkash : isBkash;
       });
 
     // If this worker already holds an active lock, remember which session it's on.

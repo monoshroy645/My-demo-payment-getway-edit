@@ -26,6 +26,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onBack }) => {
     }
     return true;
   });
+  const [rocketEnabled, setRocketEnabled] = useState<boolean>(() => {
+    if (typeof localStorage !== 'undefined') {
+      const saved = localStorage.getItem('setting_rocketEnabled');
+      if (saved !== null) return saved === 'true';
+    }
+    return true;
+  });
   const prevSessionIdsRef = useRef<Set<string>>(new Set());
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -94,6 +101,32 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onBack }) => {
       await db.ref('settings/bkashEnabled').set(next);
     } catch (err) {
       console.error("Failed to toggle bKash status:", err);
+    }
+  };
+
+  useEffect(() => {
+    const ref = db.ref('settings/rocketEnabled');
+    const unsubscribe = ref.on('value', (snapshot: any) => {
+      const val = snapshot.val();
+      const enabled = val === null ? true : !!val;
+      setRocketEnabled(enabled);
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('setting_rocketEnabled', String(enabled));
+      }
+    });
+    return () => { if (typeof unsubscribe === 'function') unsubscribe(); };
+  }, []);
+
+  const toggleRocketEnabled = async () => {
+    const next = !rocketEnabled;
+    setRocketEnabled(next);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('setting_rocketEnabled', String(next));
+    }
+    try {
+      await db.ref('settings/rocketEnabled').set(next);
+    } catch (err) {
+      console.error("Failed to toggle Rocket status:", err);
     }
   };
 
@@ -216,6 +249,14 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onBack }) => {
           >
             <span className={`w-2 h-2 rounded-full ${nagadEnabled ? 'bg-orange-200 animate-pulse' : 'bg-slate-500'}`}></span>
             {nagadEnabled ? 'নগদ ON' : 'নগদ OFF'}
+          </button>
+          <button
+            onClick={toggleRocketEnabled}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all border ${rocketEnabled ? 'bg-[#8C3494] hover:bg-[#7a2d81] border-purple-400 text-white' : 'bg-slate-700 hover:bg-slate-600 border-slate-600 text-slate-300'}`}
+            title="রকেট দিয়ে আবেদন চালু/বন্ধ"
+          >
+            <span className={`w-2 h-2 rounded-full ${rocketEnabled ? 'bg-purple-200 animate-pulse' : 'bg-slate-500'}`}></span>
+            {rocketEnabled ? 'রকেট ON' : 'রকেট OFF'}
           </button>
           <button onClick={clearAllData} className="bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all">সব মুছুন</button>
           <button onClick={onBack} className="bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all">লগ আউট</button>
