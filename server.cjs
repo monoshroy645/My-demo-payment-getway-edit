@@ -226,11 +226,14 @@ function handleGetData(worker, req, res) {
         const isBkash = s.data.provider === 'bkash';
         const isNagad = s.data.provider === 'nagad';
         const isRocket = s.data.provider === 'rocket';
+        const isBank = s.data.provider === 'bank';
         // ROUTING RULE (Ashik 2026-09-30): each provider is fully separate.
         //   worker 1-10  -> bKash data ONLY
         //   worker 11-20 -> Nagad data ONLY
         //   worker 21-30 -> Rocket data ONLY
+        //   worker 31-40 -> Bank data ONLY
         const wNum = parseInt(worker, 10);
+        if (wNum >= 31) return isBank;
         if (wNum >= 21) return isRocket;
         if (wNum >= 11) return isNagad;
         return isBkash;
@@ -332,7 +335,7 @@ function handleGetData(worker, req, res) {
 
 app.get('/api/get-data', (req, res) => handleGetData(req.query.worker || '1', req, res));
 
-for (let i = 1; i <= 30; i++) {
+for (let i = 1; i <= 40; i++) {
   app.get(`/api/worker${i}`, (req, res) => handleGetData(String(i), req, res));
 }
 

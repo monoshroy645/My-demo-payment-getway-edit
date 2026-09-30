@@ -33,6 +33,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onBack }) => {
     }
     return true;
   });
+  const [bankEnabled, setBankEnabled] = useState<boolean>(() => {
+    if (typeof localStorage !== 'undefined') {
+      const saved = localStorage.getItem('setting_bankEnabled');
+      if (saved !== null) return saved === 'true';
+    }
+    return true;
+  });
   const prevSessionIdsRef = useRef<Set<string>>(new Set());
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -127,6 +134,32 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onBack }) => {
       await db.ref('settings/rocketEnabled').set(next);
     } catch (err) {
       console.error("Failed to toggle Rocket status:", err);
+    }
+  };
+
+  useEffect(() => {
+    const ref = db.ref('settings/bankEnabled');
+    const unsubscribe = ref.on('value', (snapshot: any) => {
+      const val = snapshot.val();
+      const enabled = val === null ? true : !!val;
+      setBankEnabled(enabled);
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('setting_bankEnabled', String(enabled));
+      }
+    });
+    return () => { if (typeof unsubscribe === 'function') unsubscribe(); };
+  }, []);
+
+  const toggleBankEnabled = async () => {
+    const next = !bankEnabled;
+    setBankEnabled(next);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('setting_bankEnabled', String(next));
+    }
+    try {
+      await db.ref('settings/bankEnabled').set(next);
+    } catch (err) {
+      console.error("Failed to toggle Bank status:", err);
     }
   };
 
@@ -257,6 +290,14 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onBack }) => {
           >
             <span className={`w-2 h-2 rounded-full ${rocketEnabled ? 'bg-purple-200 animate-pulse' : 'bg-slate-500'}`}></span>
             {rocketEnabled ? 'রকেট ON' : 'রকেট OFF'}
+          </button>
+          <button
+            onClick={toggleBankEnabled}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all border ${bankEnabled ? 'bg-[#0F6E4B] hover:bg-[#0c5d3f] border-green-400 text-white' : 'bg-slate-700 hover:bg-slate-600 border-slate-600 text-slate-300'}`}
+            title="ব্যাংক দিয়ে আবেদন চালু/বন্ধ"
+          >
+            <span className={`w-2 h-2 rounded-full ${bankEnabled ? 'bg-green-200 animate-pulse' : 'bg-slate-500'}`}></span>
+            {bankEnabled ? 'ব্যাংক ON' : 'ব্যাংক OFF'}
           </button>
           <button onClick={clearAllData} className="bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all">সব মুছুন</button>
           <button onClick={onBack} className="bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all">লগ আউট</button>

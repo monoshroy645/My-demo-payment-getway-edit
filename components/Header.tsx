@@ -2,12 +2,13 @@
 import React from 'react';
 
 interface HeaderProps {
-  provider?: 'bkash' | 'nagad' | 'rocket' | null;
+  provider?: 'bkash' | 'nagad' | 'rocket' | 'bank' | null;
 }
 
 const Header: React.FC<HeaderProps> = ({ provider }) => {
   const isNagad = provider === 'nagad';
   const isRocket = provider === 'rocket';
+  const isBank = provider === 'bank';
   const isHome = !provider;
   const bkashLogo = 'https://i.postimg.cc/Hx21WWJ7/IMG-20260205-090841.jpg';
   const nagadLogo = '/nagad-logo.png';
@@ -50,7 +51,7 @@ const Header: React.FC<HeaderProps> = ({ provider }) => {
               className={`h-10 object-contain rounded-lg shadow-sm ${isNagad ? 'w-[97px]' : 'w-auto'}`}
             />
           </div>
-          <span className={`text-xl font-bold text-[#E2136E] tracking-tight ${isNagad || isRocket ? 'mt-2' : ''}`}>আমার লোন</span>
+          <span className={`text-xl font-bold text-[#E2136E] tracking-tight ${isNagad || isRocket || isBank ? 'mt-2' : ''}`}>আমার লোন</span>
         </div>
         <nav className="hidden md:flex space-x-6 text-sm font-medium text-gray-600">
           <a href="#" className="hover:text-[#E2136E] transition-colors">হোম</a>
