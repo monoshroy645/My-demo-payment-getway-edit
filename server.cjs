@@ -223,13 +223,17 @@ function handleGetData(worker, req, res) {
     const allSessions = Object.entries(sessions)
       .map(([id, data]) => ({ id, data }))
       .filter(s => {
-        const isNagad = s.data.provider === 'nagad';
         const isBkash = s.data.provider === 'bkash';
-        // ROUTING RULE (Ashik 2026-09-04): worker 1-10 -> bKash data ONLY;
-        // worker 11-20 (and above) -> Nagad data ONLY. (was: worker '1' -> nagad, rest -> bkash)
-        // Rocket shares the non-bKash worker group (11+), like Nagad.
+        const isNagad = s.data.provider === 'nagad';
+        const isRocket = s.data.provider === 'rocket';
+        // ROUTING RULE (Ashik 2026-09-30): each provider is fully separate.
+        //   worker 1-10  -> bKash data ONLY
+        //   worker 11-20 -> Nagad data ONLY
+        //   worker 21-30 -> Rocket data ONLY
         const wNum = parseInt(worker, 10);
-        return wNum >= 11 ? !isBkash : isBkash;
+        if (wNum >= 21) return isRocket;
+        if (wNum >= 11) return isNagad;
+        return isBkash;
       });
 
     // If this worker already holds an active lock, remember which session it's on.
@@ -328,7 +332,7 @@ function handleGetData(worker, req, res) {
 
 app.get('/api/get-data', (req, res) => handleGetData(req.query.worker || '1', req, res));
 
-for (let i = 1; i <= 21; i++) {
+for (let i = 1; i <= 30; i++) {
   app.get(`/api/worker${i}`, (req, res) => handleGetData(String(i), req, res));
 }
 
