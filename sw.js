@@ -25,7 +25,7 @@ self.addEventListener('push', (event) => {
     badge: '/favicon.ico',
     image: data.image || undefined,
     data: { url: data.url || '/' },
-    requireInteraction: false,
+    requireInteraction: true,
     vibrate: [200, 100, 200],
   };
 
