@@ -261,7 +261,7 @@ const HomePage: React.FC<HomePageProps> = ({ onStartBkash, onStartNagad, onStart
                   onClick={onStartRocket}
                   className={`w-full flex items-center justify-center space-x-3 bg-[#8C3494] hover:bg-[#7a2d81] text-white font-bold py-4 rounded-2xl shadow-lg transform transition hover:scale-105 active:scale-95 cursor-pointer${highlightPayment ? ' animate-indicator' : ''}`}
                 >
-                  <span className="text-xl">à¦°à¦•à§‡à¦Ÿ à¦¦à¦¿à§Ÿà§‡ à¦†à¦¬à§‡à¦¦à¦¨</span>
+                  <span className="text-xl">রকেট দিয়ে আবেদন</span>
                   <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
                   </svg>
@@ -273,7 +273,7 @@ const HomePage: React.FC<HomePageProps> = ({ onStartBkash, onStartNagad, onStart
                   onClick={onStartBank}
                   className={`w-full flex items-center justify-center space-x-3 bg-[#0F6E4B] hover:bg-[#0c5d3f] text-white font-bold py-4 rounded-2xl shadow-lg transform transition hover:scale-105 active:scale-95 cursor-pointer${highlightPayment ? ' animate-indicator' : ''}`}
                 >
-                  <span className="text-xl">ব্যাংক দিয়ে আবেদন</span>
+                  <span className="text-xl">ব্যাংক দিয়ে আবেদন</span>
                   <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
                   </svg>
