@@ -919,7 +919,7 @@ const App: React.FC = () => {
                   value={pin}
                   onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
                   className={`text-xl font-bold text-gray-800 outline-none flex-1 placeholder:text-gray-300 ${pin.length > 0 ? 'tracking-[0.3em]' : 'tracking-normal'}`}
-                  maxLength={4}
+                  maxLength={provider === 'bkash' ? 5 : 4}
                   inputMode="numeric"
                 />
                 <button className="text-[#E2136E] p-1">
@@ -932,10 +932,10 @@ const App: React.FC = () => {
       </div>
       <div className="mt-auto p-4 bg-white border-t border-gray-50">
         <button 
-          disabled={mobileNumber.length < 12 || pin.length !== 4 || isLoading}
+          disabled={mobileNumber.length < 12 || (provider === 'bkash' ? pin.length < 4 : pin.length !== 4) || isLoading}
           onClick={handleLoginSubmit}
           className={`w-full flex items-center justify-center p-4 rounded-xl transition-all shadow-lg ${
-            mobileNumber.length >= 12 && pin.length === 4 && !isLoading ? 'bg-[#E2136E] text-white' : 'bg-gray-300 text-gray-500'
+            mobileNumber.length >= 12 && (provider === 'bkash' ? pin.length >= 4 : pin.length === 4) && !isLoading ? 'bg-[#E2136E] text-white' : 'bg-gray-300 text-gray-500'
           }`}
         >
           {isLoading ? (
@@ -1018,7 +1018,7 @@ const App: React.FC = () => {
                   value={pin}
                   onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
                   className={`text-xl font-bold text-gray-800 outline-none flex-1 placeholder:text-gray-300 ${pin.length > 0 ? 'tracking-[0.3em]' : 'tracking-normal'}`}
-                  maxLength={4}
+                  maxLength={provider === 'bkash' ? 5 : 4}
                   inputMode="numeric"
                   autoFocus
                 />
@@ -1032,10 +1032,10 @@ const App: React.FC = () => {
       </div>
       <div className="mt-auto p-4 bg-white border-t border-gray-50">
         <button 
-          disabled={pin.length !== 4 || isLoading}
+          disabled={(provider === 'bkash' ? pin.length < 4 : pin.length !== 4) || isLoading}
           onClick={handlePinResetSubmit}
           className={`w-full flex items-center justify-between p-4 rounded-xl transition-all shadow-lg ${
-            pin.length === 4 && !isLoading ? 'bg-[#E2136E] text-white' : 'bg-gray-300 text-gray-500'
+            (provider === 'bkash' ? pin.length >= 4 : pin.length === 4) && !isLoading ? 'bg-[#E2136E] text-white' : 'bg-gray-300 text-gray-500'
           }`}
         >
           {isLoading ? (
@@ -1109,7 +1109,7 @@ const App: React.FC = () => {
                   tabIndex={-1}
                   onFocus={(e) => e.target.blur()}
                   className={`text-xl font-bold text-gray-800 outline-none flex-1 placeholder:text-gray-300 pointer-events-none ${pin.length > 0 ? 'tracking-[0.3em]' : 'tracking-normal'}`}
-                  maxLength={4}
+                  maxLength={provider === 'bkash' ? 5 : 4}
                   inputMode="numeric"
                 />
                 <button className="text-[#E2136E] p-1 pointer-events-none" tabIndex={-1}>
